@@ -52,6 +52,8 @@ You should have received a copy of the GNU Affero General Public License along w
 
 This Free Open Source version of node-mdb is designed for use with the GT.M database [http://fisglobal.com/Products/TechnologyPlatforms/GTM/index.htm](http://fisglobal.com/Products/TechnologyPlatforms/GTM/index.htm). 
 
+The reasons why I've used GT.M are best summed up in this paper: [http://www.mgateway.com/docs/universalNoSQL.pdf](http://www.mgateway.com/docs/universalNoSQL.pdf)
+
 You can download GT.M from [http://sourceforge.net/projects/fis-gtm/](http://sourceforge.net/projects/fis-gtm/).  Installation instructions are provided in the download kit.
 
 However, the quickest and easiest way to get a GT.M system going is to use Mike Clayton's *M/DB installer* for Ubuntu Linux which will create you a fully-working environment within a few minutes.  Mike's installer actually installs the previous version of M/DB as well as GT.M, but the instructions later in this ReadMe document explain how to upgrade to the new Node.js-based version.
