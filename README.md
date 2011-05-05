@@ -102,11 +102,11 @@ Install Node.js and NPM on your server.  See [http://nodejs.org](http://nodejs.o
 
 - download the node-mdb repository, eg
 
-      git clone git://github.com/robtweed/node-mdb.git
+        git clone git://github.com/robtweed/node-mdb.git
 
  The destination directory in which you'll find the files is determined by the path in which you ran the above command.
 
- In the repository's */lib* directory, you'll find the main M/DB Node.js file: *mdb.js*.  Copy this to the path */usr/local/gtm/ewd/* on your GT.M server (adjust this path appropriately if you've installed GT.M for use in another directory).
+ In the repository's */lib* directory, you'll find the main M/DB Node.js file: *mdb.js* and a second file named *mdbInit.js*.  Copy these files to the path */usr/local/gtm/ewd/* on your GT.M server (adjust this path appropriately if you've installed GT.M for use in another directory).
 
 In the repository's */gtm* directory, you'll find the M/Wire interface files that are used by mdb.js to access the GT.M database (See [https://github.com/robtweed/node-mwire](https://github.com/robtweed/node-mwire) for more details on the *node-mwire* used by *node-mdb*)  
 
@@ -134,6 +134,18 @@ You're now ready to use *node-mdb*
 
 ## Running node-mdb
 
+Before you run *node-mdb* for the first time, you need to set up an administrator's access key id and secret key.  These are used for signing the API requests (just as happens in SimpleDB).
+
+To do this, edit the file *mdbInit.js* to create the values you wish for your access key id and secret key (*It's not advisable to use the pre-defined values!*).  Then simply run it:
+
+       cd /usr/local/gtm/ewd
+	   node mdbInit.js
+	   
+You only have to run this once (or any time you want to change your security credentials).
+
+Now you're ready to fire up *node-mdb*:
+
+	   
       cd /usr/local/gtm/ewd
 	  node mdb.js
 	  
