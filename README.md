@@ -141,34 +141,8 @@ Most SimpleDB clients will work with *node-mdb*.  The main requirement is that y
 
       http://192.168.1.100:8081/
 	  
+By default, node-mdb listens on port 8081 for incoming HTTP requests.  You can change this and a number of other settings by editing *mdb.js*.  You'll find the customisable parameters described in the comments at the top of the file.
 
-
-
-
-
-
-
-
+If you find any problems, please let me know via the M/DB Google Group: [http://groups.google.co.uk/group/mdb-community-forum](http://groups.google.co.uk/group/mdb-community-forum)
+	  
  
-
-
-
-
-
-
-
-
-
-
-## Background
-
-M/DB is an Open Source clone of SimpleDB that uses the Open Source GT.M Mumps database as the storage engine.  M/DB behaves identically to SimpleDB, sharing its APIs.
-
-
-
-
-
-
-    
-
-
