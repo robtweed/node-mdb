@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /usr/local/gtm/ewd
+source /usr/local/gtm/gtmprofile
+mumps -r command^zmwire

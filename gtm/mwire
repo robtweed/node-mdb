@@ -1,0 +1,10 @@
+service mwire
+{
+    disable     = no
+    type        = UNLISTED
+    port        = 6330
+    socket_type = stream
+    wait        = no
+    user        = root
+    server      = /usr/local/gtm/zmwire
+}
