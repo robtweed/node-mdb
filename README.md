@@ -124,7 +124,7 @@ You need to copy the files to the following directories:
  
 Nearly there!  You just need to use NPM to install some other Node.js modules that are used by node-mdb.
 
-## Installing the additional Node.js modules uses by node-mdb
+## Installing the additional Node.js modules used by node-mdb
 
 Simply use NPM as follows:
 
