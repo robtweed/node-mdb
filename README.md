@@ -136,26 +136,33 @@ Simply use NPM as follows:
 		
 You're now ready to use *node-mdb*
 
-## Running node-mdb
+## Setting up the administrator's security credentials
 
 Before you run *node-mdb* for the first time, you need to set up an administrator's access key id and secret key.  These are used for signing the API requests (just as happens in SimpleDB).
 
-To do this, edit the file *mdbInit.js* to create the values you wish for your access key id and secret key (*It's not advisable to use the pre-defined values!*).  Then simply run it:
+If you used Mike Clayton's M/DB installer, you can do this via the welcome web page that you'll see in the browser when you first point it at the M/DB Appliance.  If you haven't used this process, you can now set up the security credentials using Node.js as follows:
+
+Edit the file *mdbInit.js* to create the values for your administrator's access key id and secret key - these are clearly indicated at the top of the file (*It's not advisable to use the pre-defined values, so make sure you change them to something only you know*).  Then simply run it:
 
        cd /usr/local/gtm/ewd
 	   node mdbInit.js
 	   
-You only have to run this once (or any time you want to change your security credentials).
+You only have to run this once (or any time you want to change your administrator's security credentials).
+
+## Running node-mdb
 
 Now you're ready to fire up *node-mdb*:
-
 	   
       cd /usr/local/gtm/ewd
 	  node mdb.js
 	  
+That's it! It's now waiting for requests.
+	  
 Most SimpleDB clients will work with *node-mdb*.  The main requirement is that you must be able to change the URL that normally points to the Amazon SimpleDB server, and point it at your M/DB instance instead, eg:
 
       http://192.168.1.100:8081/
+
+Clients that are known to work with M/DB include Bolso, boto (Python), Mindscape's SimpleDB Management Tools and Lightspeed.  A number of people have been able to simply modify the AWS Java client to work with M/DB, and the Node.js client (https://github.com/rjrodger/simpledb) should also work with *node-mdb*.
 	  
 By default, node-mdb listens on port 8081 for incoming HTTP requests.  You can change this and a number of other settings by editing *mdb.js*.  You'll find the customisable parameters described in the comments at the top of the file.
 
