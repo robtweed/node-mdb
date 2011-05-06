@@ -15,7 +15,7 @@ See [http://www.mgateway.com/mdb.html](http://www.mgateway.com/mdb.html) for bac
 
 ## Important Note
 
-This is an early release of *node-mdb* and does not currently support the entire range of SimpleDB APIs.  The APIs implemented so far are:
+This is an early release of *node-mdb* and does not currently support the entire range of SimpleDB APIs.  The APIs fully implemented so far are:
 
 - CreateDomain
 - DeleteDomain
@@ -29,7 +29,9 @@ Select can be used, but the only expression that is accepted at present is:
 
       Select * from [yourDomainName]
 
-Future versions will include more of the SimpleDB APIs.
+The Bulk APIs have not yet been implemented.
+	  
+Future versions will add these missing APIs and extend the capabilities of the Select API.
 
 The current version uses HTTP, but could be adapted for use with HTTPS
 	  
