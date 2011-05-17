@@ -5,7 +5,7 @@ node-mdb is a re-implementation of M/DB, the Open Source clone of SimpleDB
 It has been completely re-written in Node.js Javascript and uses the free, Open Source GT.M database as the data repository.
 
 Rob Tweed <rtweed@mgateway.com>  
-05 May 2011, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+17 May 2011, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter@ @rtweed
 
@@ -15,7 +15,7 @@ See [http://www.mgateway.com/mdb.html](http://www.mgateway.com/mdb.html) for bac
 
 ## Important Note
 
-This is an early release of *node-mdb* and does not currently support the entire range of SimpleDB APIs.  The APIs fully implemented so far are:
+This is an early release of *node-mdb* and does not currently fully support the entire range of SimpleDB APIs.  The APIs implemented so far are:
 
 - CreateDomain
 - DeleteDomain
@@ -25,10 +25,17 @@ This is an early release of *node-mdb* and does not currently support the entire
 - GetAttributes
 - DeleteAttributes
 
-Select can be used, but the only expression that is accepted at present is:
+None of these APIs currently support the NextToken mechanism.  All matching records will be returned.
+
+Select can be used, but the only expression that is executed within node-mdb at present is:
 
       Select * from [yourDomainName]
 
+However, provided you are also running the legacy version of M/DB (ie the MDB.m routine should be
+present), all other Select expressions can be optionally handled by the legacy version, in which case
+node-mdb will provide full Select functionality as per SimpleDB.
+	  
+	  
 The Bulk APIs have not yet been implemented.
 	  
 Future versions will add these missing APIs and extend the capabilities of the Select API.
@@ -37,7 +44,7 @@ The current version uses HTTP, but could be adapted for use with HTTPS
 	  
 ## License
 
-Copyright (c) 2004-10 M/Gateway Developments Ltd,
+Copyright (c) 2011 M/Gateway Developments Ltd,
 Reigate, Surrey UK.
 All rights reserved.
 
