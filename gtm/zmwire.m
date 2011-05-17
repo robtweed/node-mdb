@@ -195,9 +195,13 @@ multiBulkRequest()
  . . s len=len_$c(c)
  . r *c
  . s input=""
- . i len>0 r input#len
- . s param(i)=input
- . r *c,*c
+ . i len=0 d
+ . . s param(i)=""
+ . . r *c
+ . e  d
+ . . r input#len
+ . . s param(i)=input
+ . . r *c,*c
  ;
  s param(1)=$zconvert(param(1),"U")
  ;QUIT "PING"
