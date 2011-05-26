@@ -25,10 +25,10 @@ MDB ; M/DB: Mumps Emulation of Amazon SimpleDB
  ;
  ;
 version()	
-	QUIT "40"
+	QUIT "41"
 	;
 buildDate()	
-	QUIT "17 May 2011"
+	QUIT "25 May 2011"
 	;
 indexLength()
  QUIT 180
@@ -1333,6 +1333,8 @@ queryPredicate(query,keyId,domainId,itemList,name)
  ;
  i query["\'" s query=$$replaceAll^%zewdAPI(query,"\'",$c(1))
  i query["''" s query=$$replaceAll^%zewdAPI(query,"''",$c(1))
+ i query[$c(32,1,39) s query=$$replaceAll^%zewdAPI(query,$c(32,1,39),$c(32,39,1))
+ i query[$c(61,1,39) s query=$$replaceAll^%zewdAPI(query,$c(61,1,39),$c(61,39,1))
  i query[$c(2) s query=$$replaceAll^%zewdAPI(query,$c(2),$c(1))
  s error="",predicate=""
  s not=$$queryNot(.query)

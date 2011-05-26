@@ -5,9 +5,9 @@ node-mdb is a re-implementation of M/DB, the Open Source clone of SimpleDB
 It has been completely re-written in Node.js Javascript and uses the free, Open Source GT.M database as the data repository.
 
 Rob Tweed <rtweed@mgateway.com>  
-17 May 2011, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+26 May 2011, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
-Twitter@ @rtweed
+Twitter @rtweed
 
 Google Group for discussions, support, advice etc: [http://groups.google.co.uk/group/mdb-community-forum](http://groups.google.co.uk/group/mdb-community-forum)
 
@@ -119,7 +119,9 @@ Install Node.js and NPM on your server.  See [http://nodejs.org](http://nodejs.o
 
  In the repository's */lib* directory, you'll find the main M/DB Node.js file: *mdb.js* and a second file named *mdbInit.js*.  Copy these files to the path */usr/local/gtm/ewd/* on your GT.M server (adjust this path appropriately if you've installed GT.M for use in another directory).
 
-In the repository's */gtm* directory, you'll find the M/Wire interface files that are used by mdb.js to access the GT.M database (See [https://github.com/robtweed/node-mwire](https://github.com/robtweed/node-mwire) for more details on the *node-mwire* used by *node-mdb*)  
+ If you've used Mike Clayton's M/DB Installer, you can skip the next steps in this section.
+ 
+ If not, then in the repository's */gtm* directory, you'll find the M/Wire interface files that are used by mdb.js to access the GT.M database (See [https://github.com/robtweed/node-mwire](https://github.com/robtweed/node-mwire) for more details on the *node-mwire* used by *node-mdb*)  
 
 You need to copy the files to the following directories:
 
