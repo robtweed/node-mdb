@@ -55,10 +55,10 @@ zmwire ; M/Wire Protocol for M Systems (eg GT.M, Cache)
  ;    Stop the Daemon process using ^RESJOB and restart it.
  ;
 mwireVersion
- ;;Build 15
+ ;;Build 17
  ;
 mwireDate
- ;;03 May 2011
+ ;;02 June 2011
  ;
 version
  ;
@@ -143,6 +143,7 @@ loop
  i $e(input,1,7)="EXISTS " d data($e(input,8,$l(input))) g loop
  i $e(input,1,5)="INCR " d incr($e(input,6,$l(input))) g loop
  i $e(input,1,5)="DECR " d decr($e(input,6,$l(input))) g loop
+ i $e(input,1,11)="COPYGLOBAL " d copy($e(input,12,$l(input))) g loop
  i $e(input,1,5)="LOCK " d lock($e(input,6,$l(input))) g loop
  i $e(input,1,7)="UNLOCK " d unlock($e(input,8,$l(input))) g loop
  i $e(input,1,6)="ORDER " d order($e(input,7,$l(input))) g loop
@@ -207,7 +208,13 @@ multiBulkRequest()
  ;QUIT "PING"
  i param(1)="PING" QUIT param(1)
  i param(1)="SET" QUIT param(1)_" "_param(2)_" "_$l(param(3))_crlf_param(3)
- i param(1)="SETJSONSTRING" d  QUIT param(1)_" "_param(2)_crlf_param(3)_crlf_param(4)
+ i param(1)="SETJSONSTRING" QUIT param(1)_" "_param(2)_crlf_param(3)_crlf_param(4)
+ i param(1)="COPYGLOBAL" d  QUIT input
+ . s space="",input=""
+ . f i=1:1:noOfCommands d
+ . . s input=input_space_param(i)
+ . . i space="" s space=" " q
+ . . i space=" " s space=$c(1)
  i param(1)="EXECUTE" d  QUIT input
  . i $e(param(3),1)="[" s input=param(1)_" "_param(2)_"("_$e(param(3),2,$l(param(3))-1)_")" q
  . s input=param(1)_" "_param(2)
@@ -1066,7 +1073,7 @@ getAllSubscripts(input)
  s $zt=$$zt()
  x x
  s $zt=""
- i 'exists s output="$2"_crlf_"[]"_crlf w output QUIT
+ i 'exists!(exists=1) s output="$2"_crlf_"[]"_crlf w output QUIT
  ;
  s subs=""
  s subs1=subs i subs1["""" s subs1=$$replaceAll(subs1,"""","""""")
@@ -1300,6 +1307,37 @@ mergeto(input)
  s output="+OK"_crlf
  w output
  s $zt=""
+ QUIT
+ ;
+copy(input)
+ ;
+ n fromGlo,killToFirst,p2,response,toGlo,x
+ ;
+ ; COPY fromGlobal["1","a"] toGlobal["x"] 1
+ d trace^%zewdAPI("copy: input="_input)
+ s $zt=$$zt()
+ s fromGlo=$p(input,$c(1),1)
+ s toGlo=$p(input,$c(1),2)
+ s killToFirst=$p(input,$c(1),3)
+ s p2=$p(fromGlo,"[",2,2000)
+ s p2=$e(p2,1,$l(p2)-1)
+ i p2'="" s p2="("_p2_")"
+ s fromGlo="^"_$p(fromGlo,"[",1)_p2
+ s p2=$p(toGlo,"[",2,2000)
+ s p2=$e(p2,1,$l(p2)-1)
+ i p2'="" s p2="("_p2_")"
+ s toGlo="^"_$p(toGlo,"[",1)_p2
+ s x=""
+ i killToFirst s x="k "_toGlo_" "
+ s x=x_"m "_toGlo_"="_fromGlo
+ x x
+ ;
+ d trace^%zewdAPI("x="_x)
+ s response="+ok"_crlf
+ i $g(^%zewd("trace"))=1 d trace("copy: response="_response)
+ w response
+ s $zt=""
+ ;
  QUIT
  ;
 mdate

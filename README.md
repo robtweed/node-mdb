@@ -57,15 +57,30 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 You should have received a copy of the GNU Affero General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-## Installing the GT.M Database
+## Running node-mdb
 
-This Free Open Source version of node-mdb is designed for use with the GT.M database [http://fisglobal.com/Products/TechnologyPlatforms/GTM/index.htm](http://fisglobal.com/Products/TechnologyPlatforms/GTM/index.htm). 
+ There are two ways to run node-mdb:
+ 
+ - using a pre-built, pre-configured virtual appliance
+ - building your own system
+ 
+## The node-mdb Virtual Appliance
 
-The reasons why I've used GT.M are best summed up in this paper: [http://www.mgateway.com/docs/universalNoSQL.pdf](http://www.mgateway.com/docs/universalNoSQL.pdf)
+ This is the quickest and simplest way to get a node-mdb system up and running.  See the 
+ detailed instructions at the [http://www.mgateway.com/node-mdb.html](M/Gateway web site).
 
-You can download GT.M from [http://sourceforge.net/projects/fis-gtm/](http://sourceforge.net/projects/fis-gtm/).  Installation instructions are provided in the download kit.
+## Building your own node-mdb system
 
-However, the quickest and easiest way to get a GT.M system going is to use Mike Clayton's *M/DB installer* for Ubuntu Linux which will create you a fully-working environment within a few minutes.  Mike's installer actually installs the previous version of M/DB as well as GT.M, but the instructions later in this ReadMe document explain how to upgrade to the new Node.js-based version.
+To build your own node-mdb system, you'll first need to install and configure the Free Open Source NoSQL GT.M database
+ [http://fisglobal.com/Products/TechnologyPlatforms/GTM/index.htm](http://fisglobal.com/Products/TechnologyPlatforms/GTM/index.htm). 
+
+The reasons why I've used GT.M for emulation of SimpleDB's functionality are best summed up in this paper: [http://www.mgateway.com/docs/universalNoSQL.pdf](http://www.mgateway.com/docs/universalNoSQL.pdf)
+
+You can download GT.M from [http://sourceforge.net/projects/fis-gtm/](http://sourceforge.net/projects/fis-gtm/).  Installation instructions are provided in the download kit. The 
+ simplest way to install GT.M is to use the new installer: [http://sourceforge.net/projects/fis-gtm/files/GT.M%20Installer/v0.11/gtminstall] 
+ (http://sourceforge.net/projects/fis-gtm/files/GT.M%20Installer/v0.11/gtminstall).
+
+However, probably the quickest and easiest way to get a GT.M system going is to use Mike Clayton's *M/DB installer* for Ubuntu Linux which will create you a fully-working environment within a few minutes.  Mike's installer actually installs the previous version of M/DB as well as GT.M, but the instructions later in this ReadMe document explain how to upgrade to the new Node.js-based version.
 
 Node.js can reside on the same server as GT.M or on a different server.
 

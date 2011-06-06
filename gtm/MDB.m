@@ -25,10 +25,10 @@ MDB ; M/DB: Mumps Emulation of Amazon SimpleDB
  ;
  ;
 version()	
-	QUIT "41"
+	QUIT "42"
 	;
 buildDate()	
-	QUIT "25 May 2011"
+	QUIT "04 June 2011"
 	;
 indexLength()
  QUIT 180
@@ -413,7 +413,7 @@ getAttributes(keyId,domainName,itemName,attributes,requestId,boxUsage,suppressBo
  . . . s valueNo=valueNo+1
  . . . i value=$c(31) s value=""
  . . . s attributes(attrNo,"value",valueNo)=value
- . . . ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": attributes("_attrNo_",value,"_valueNo_")="_value)
+ . . . ;i $g(^zewd("trace")) d trace($h_": attributes("_attrNo_",value,"_valueNo_")="_value)
  ;
  i $g(suppressBoxUsage) QUIT ""
  QUIT $$end(startTime,.boxUsage)
@@ -494,7 +494,7 @@ query(keyId,domainName,queryExpression,maxNoOfItems,nextToken,itemList,requestId
  s domainName=$g(domainName)
  i domainName="" QUIT $$end(startTime,.boxUsage,"MissingParameter","DomainName")
  s queryExpression=$g(queryExpression)
- i $g(^zewd("trace"))=1 d trace^%zewdAPI("Query Expression="_queryExpression)
+ i $g(^zewd("trace"))=1 d trace("Query Expression="_queryExpression)
  s maxNoOfItems=$g(maxNoOfItems)
  k itemList
  ;
@@ -556,7 +556,7 @@ mgwsiResponse(cgi,data)
  . i name="$CONTENT" q
  . s unescName=$$urlDecode(name)
  . s %KEY(unescName)=$$urlDecode($g(data(name,1)))
- . i %KEY(unescName)[$c(13,10) s %KEY(unescName)=$$replace^%zewdAPI(%KEY(unescName),$c(13,10),"")
+ . i %KEY(unescName)[$c(13,10) s %KEY(unescName)=$$replace(%KEY(unescName),$c(13,10),"")
  d response
  QUIT
  ;
@@ -572,7 +572,7 @@ response
  . s action=$g(%KEY("Action"))
  . i $g(^zewd("trace"))=1 d
  . . n i
- . . d trace^%zewdAPI("MDB request processing for "_action_": started at "_$h_"; process: "_$j)
+ . . d trace("MDB request processing for "_action_": started at "_$h_"; process: "_$j)
  . . s i=$increment(^mdbKey)
  . . m ^mdbKey(i)=%KEY
  . i action="Initialise"!(action="initialise")!(action="Initialize")!(action="initialize") d  QUIT
@@ -613,13 +613,13 @@ response
  . . i $g(%KEY("Signature"))="" s error=1 d errorResponse("SignatureDoesNotMatch","The request signature we calculated does not match the signature you provided.  Check your Secret Access Key and signing method.  Consult the service documentation for details") QUIT
  . . s secretKey=$g(^MDBUAF("keys",keyId))
  . . s hash=$$getSignedString(stringToSign,secretKey,signatureMethod)
- . . i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": string to sign:"_stringToSign)
- . . i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": hash="_hash_"; signature rcvd="_%KEY("Signature"))
+ . . i $g(^zewd("trace"))=1 d trace($h_": string to sign:"_stringToSign)
+ . . i $g(^zewd("trace"))=1 d trace($h_": hash="_hash_"; signature rcvd="_%KEY("Signature"))
  . . i hash'=%KEY("Signature") s error=1 d errorResponse("SignatureDoesNotMatch","The request signature we calculated does not match the signature you provided.  Check your Secret Access Key and signing method.  Consult the service documentation for details") QUIT
  . ;
  . ; Security OK
  . ;
- . ;d trace^%zewdAPI("security ok: db="_db)
+ . ;d trace("security ok: db="_db)
  . i $g(^MDBAPI(db,action))'="" d  QUIT
  . . ; Custom extension gateway.  Method should return output in response(lineNo)
  . . ; any error should be returned as errorCode~errorText
@@ -672,7 +672,7 @@ response
  . . d createResponse(action,requestId,boxUsage) QUIT
  . ;
  . i action="ListDomains" d  QUIT
- . . ;d trace^%zewdAPI("in ListDomains")
+ . . ;d trace("in ListDomains")
  . . n domainList,maxNoOfDomains,nextToken,resp
  . . s maxNoOfDomains=$g(%KEY("MaxNumberOfDomains"))
  . . s nextToken=$g(%KEY("NextToken"))
@@ -802,9 +802,9 @@ response
  . . s requestId=$$init(.startTime)
  . . s selectExpression=$g(%KEY("SelectExpression"))
  . . s nextToken=$g(%KEY("NextToken"))
- . . i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": Action Select, entering runSelect. keyId="_keyId_"; selectExpression="_selectExpression)
+ . . i $g(^zewd("trace"))=1 d trace($h_": Action Select, entering runSelect. keyId="_keyId_"; selectExpression="_selectExpression)
  . . s error=$$runSelect(keyId,selectExpression,.itemList,.attributes,.domainName)
- . . i $g(^zewd("trace")) d trace^%zewdAPI($h_": finished runSelect")
+ . . i $g(^zewd("trace")) d trace($h_": finished runSelect")
  . . i error'="" d errorResponse($p(error,"~",1),$p(error,"~",2)) QUIT
  . . i $g(attributes)="count(*)" d
  . . . n count
@@ -815,31 +815,31 @@ response
  . . . s itemsAndAttrs(1,1,"value",1)=count
  . . e  d
  . . . s pos=""
- . . . ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": pos=''")
+ . . . ;i $g(^zewd("trace")) d trace($h_": pos=''")
  . . . f  s pos=$o(itemList(pos)) q:pos=""  d
- . . . . ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": pos="_pos)
+ . . . . ;i $g(^zewd("trace")) d trace($h_": pos="_pos)
  . . . . s itemName=itemList(pos)
  . . . . k attribs
  . . . . m attribs=attributes
- . . . . ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": calling getAttributes for keyId="_keyId_"; domainName="_domainName_"; itemName "_itemName)
+ . . . . ;i $g(^zewd("trace")) d trace($h_": calling getAttributes for keyId="_keyId_"; domainName="_domainName_"; itemName "_itemName)
  . . . . s ex=$$getAttributes(keyId,domainName,itemName,.attribs,.rx,.bx,1)
- . . . . ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": finished getAttributes")
+ . . . . ;i $g(^zewd("trace")) d trace($h_": finished getAttributes")
  . . . . m itemsAndAttrs(pos)=attribs
  . . . . s itemsAndAttrs(pos)=itemName
- . . ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": about to call $$end")
+ . . ;i $g(^zewd("trace")) d trace($h_": about to call $$end")
  . . i $$end(startTime,.boxUsage)
- . . ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": about to start createResponse")
+ . . ;i $g(^zewd("trace")) d trace($h_": about to start createResponse")
  . . d createResponse(action,requestId,boxUsage) QUIT
  . ;
  . d errorResponse("InvalidAction","The action "_action_" is not valid for this web service") QUIT
- i $g(^zewd("trace"))=1 d trace^%zewdAPI("MDB request processing ended at "_$h)
+ i $g(^zewd("trace"))=1 d trace("MDB request processing ended at "_$h)
  QUIT
  ;
 createResponse(action,requestId,boxUsage)
  ;
  n len,lineNo
  ;
- ;i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": Commencing createResponse")
+ ;i $g(^zewd("trace"))=1 d trace($h_": Commencing createResponse")
  i '$d(%KEY("isCSP")) d
  . w "HTTP/1.0 200 OK"_$c(13,10)
  . w "Date: "_$$inetDate^%zewdAPI($h)_" "_$tr($g(^MDBConfig("GMTOffset")),":","")_$c(13,10)
@@ -964,7 +964,7 @@ createResponse(action,requestId,boxUsage)
  . . . s ^CacheTempEWD($j,lineNo)="</GetAttributesResult>",lineNo=lineNo+1
  ;
  i action="Select" d
- . ;i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": action=Select")
+ . ;i $g(^zewd("trace"))=1 d trace($h_": action=Select")
  . i '$d(itemsAndAttrs) d  q
  . . s ^CacheTempEWD($j,lineNo)="<SelectResult />",lineNo=lineNo+1
  . e  d
@@ -987,7 +987,7 @@ createResponse(action,requestId,boxUsage)
  . . . . . s ^CacheTempEWD($j,lineNo)="</Attribute>",lineNo=lineNo+1
  . . . s ^CacheTempEWD($j,lineNo)="</Item>",lineNo=lineNo+1
  . . s ^CacheTempEWD($j,lineNo)="</SelectResult>",lineNo=lineNo+1
- . ;i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": finished action=Select")
+ . ;i $g(^zewd("trace"))=1 d trace($h_": finished action=Select")
  ;
  i action="Query" d
  . i '$d(itemList) d
@@ -1054,7 +1054,7 @@ createResponse(action,requestId,boxUsage)
  . w ^CacheTempEWD($j,lineNo)
  k ^CacheTempEWD($j)
  w !
- ;i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": finished createResponse")
+ ;i $g(^zewd("trace"))=1 d trace($h_": finished createResponse")
  QUIT
  ;
 errorResponse(ec,em)
@@ -1102,11 +1102,11 @@ createResponseStringToSign(version)
  . . q:$e(n,1,3)="MGW"
  . . q:n="Signature"
  . . q:n="isCSP"
- . . s nvpListlc($$zcvt^%zewdAPI(n,"l"))=n
+ . . s nvpListlc($zconvert(n,"l"))=n
  . . ;i $zv["GT.M" d
- . . ;. s nvpListlc($$zcvt^%zewdAPI(n,"l"))=n
+ . . ;. s nvpListlc($zconvert(n,"l"))=n
  . . ;e  d
- . . ;. s nvpListlc($zcvt(n,"l"))=n
+ . . ;. s nvpListlc($zconvert(n,"l"))=n
  . s nlc=""
  . f  s nlc=$o(nvpListlc(nlc)) q:nlc=""  d
  . . s name=nvpListlc(nlc)
@@ -1136,7 +1136,7 @@ createResponseStringToSign(version)
  . . . s location="/"_$p(location,"/",2,2000)
  . . . s location=$p(location,"?",1)
  . s stringToSign=method_$c(10)_url_$c(10)_location_$c(10)_stringToSign
- . ;s stringToSign=$$replaceAll^%zewdAPI(stringToSign,$c(13,10),"")
+ . ;s stringToSign=$$replaceAll(stringToSign,$c(13,10),"")
  ;
  QUIT stringToSign
  ;
@@ -1151,7 +1151,7 @@ createToken(length)
  ;
 init(startTime)
  ;
- i $g(^zewd("trace")) d trace^%zewdAPI($h_": $$init")
+ i $g(^zewd("trace")) d trace($h_": $$init")
  i $zv["GT.M" d
  . s startTime=$$ZTS^%ZMGWSIS(1)
  e  d
@@ -1167,15 +1167,15 @@ createRequestId()
  . i $l(hex)=1 s hex=0_hex
  . s responseId=responseId_hex
  . i i=4!(i=6)!(i=8)!(i=10) s responseId=responseId_"-"
- QUIT $$zcvt^%zewdAPI(responseId,"l")
- ;i $zv["GT.M" QUIT $$zcvt^%zewdAPI(responseId,"l")
- ;QUIT $zcvt(responseId,"l")
+ QUIT $zconvert(responseId,"l")
+ ;i $zv["GT.M" QUIT $zconvert(responseId,"l")
+ ;QUIT $zconvert(responseId,"l")
  
 end(startTime,boxUsage,errorCode,parameter1,parameter2)
  ;
  n endTime,error
  ;
- i $g(^zewd("trace")) d trace^%zewdAPI($h_": $$end")
+ i $g(^zewd("trace")) d trace($h_": $$end")
  i $zv["GT.M" d
  . s endTime=$$ZTS^%ZMGWSIS(1)
  e  d
@@ -1196,7 +1196,7 @@ getSignedString(string,secretKey,signatureMethod)
  i $zv["GT.M" d  QUIT returnValue
  . s context=1
  . i $d(^zewd("config","MGWSI")) s context=0
- . i $$zcvt^%zewdAPI($g(signatureMethod),"l")="hmacsha256" d
+ . i $zconvert($g(signatureMethod),"l")="hmacsha256" d
  . . s returnValue=$$HMACSHA256^%ZMGWSIS(string,secretKey,1,context)
  . e  d
  . . s returnValue=$$HMACSHA1^%ZMGWSIS(string,secretKey,1,context)
@@ -1207,13 +1207,13 @@ runQuery(keyId,domainName,queryExpression,nextToken,itemList)
  ;
  n domainId,error,filter,itemId,itemName,matchList,name,no,pos,stop
  ;
- ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": runQuery started")
+ ;i $g(^zewd("trace")) d trace($h_": runQuery started")
  s error=""
  s filter="",stop=0
- i queryExpression["itemName{}" s queryExpression=$$replaceAll^%zewdAPI(queryExpression,"itemName{}","itemName()")
+ i queryExpression["itemName{}" s queryExpression=$$replaceAll(queryExpression,"itemName{}","itemName()")
  s queryExpression=$$stripSpaces($g(queryExpression))
  s domainId=$$getDomainId(keyId,domainName)
- i $g(^zewd("trace"))=1 d trace^%zewdAPI("runQuery: domainId="_domainId_"; queryExpression="_queryExpression)
+ i $g(^zewd("trace"))=1 d trace("runQuery: domainId="_domainId_"; queryExpression="_queryExpression)
  i domainId="" QUIT ""
  ;
  i queryExpression="" d  QUIT error
@@ -1291,7 +1291,7 @@ runQuery(keyId,domainName,queryExpression,nextToken,itemList)
  . . . s n=n+1
  . . . s itemList(n)=itemName
  . . . s found(itemName)=""
- ;i $g(^zewd("trace")) d trace^%zewdAPI($h_": runQuery ended")
+ ;i $g(^zewd("trace")) d trace($h_": runQuery ended")
  QUIT error
  ;
 inMatchList(matchList,itemName)
@@ -1331,11 +1331,11 @@ mergeLists(toList,fromList)
 queryPredicate(query,keyId,domainId,itemList,name)
  n c,compOp,error,i,inString,no,not,predicate,relation,stop,value
  ;
- i query["\'" s query=$$replaceAll^%zewdAPI(query,"\'",$c(1))
- i query["''" s query=$$replaceAll^%zewdAPI(query,"''",$c(1))
- i query[$c(32,1,39) s query=$$replaceAll^%zewdAPI(query,$c(32,1,39),$c(32,39,1))
- i query[$c(61,1,39) s query=$$replaceAll^%zewdAPI(query,$c(61,1,39),$c(61,39,1))
- i query[$c(2) s query=$$replaceAll^%zewdAPI(query,$c(2),$c(1))
+ i query["\'" s query=$$replaceAll(query,"\'",$c(1))
+ i query["''" s query=$$replaceAll(query,"''",$c(1))
+ i query[$c(32,1,39) s query=$$replaceAll(query,$c(32,1,39),$c(32,39,1))
+ i query[$c(61,1,39) s query=$$replaceAll(query,$c(61,1,39),$c(61,39,1))
+ i query[$c(2) s query=$$replaceAll(query,$c(2),$c(1))
  s error="",predicate=""
  s not=$$queryNot(.query)
  i $e(query,1)'="[" QUIT $$queryError(7)
@@ -1487,9 +1487,6 @@ queryError(x)
  i x=5 QUIT "InvalidSortExpression~Invalid sort expression. The sort attribute must be present in at least one of the predicates, and the predicate cannot contain the is null operator."
  QUIT "InvalidQueryExpression~The specified query expression syntax is not valid ("_x_")"
  ;
-stripSpaces(string)
- QUIT $$stripSpaces^%zewdAPI(string)
- ;
 not(itemList)
  ;
  n itemId,itemName,pos,selected
@@ -1513,9 +1510,9 @@ executeQuery(keyId,domainId,no,name,compOp,value,relation,itemList)
  n attribId,expr,func,itemId,itemName,pos,stop,xvalue
  ;
  s attribId=""
- ;d trace^%zewdAPI("xx keyId="_keyId_"; domainId="_domainId_"; name="_name)
+ ;d trace("xx keyId="_keyId_"; domainId="_domainId_"; name="_name)
  i $g(name)'="" s attribId=$$getAttributeId(keyId,domainId,name)
- ;d trace^%zewdAPI("xx attribId="_attribId)
+ ;d trace("xx attribId="_attribId)
  i attribId="",compOp'="isNull" QUIT
  ;
  i 
@@ -1832,17 +1829,17 @@ urlDecode(string)
  ;
  n ascii,c,hex,pos
  ;
- i string["%25" s string=$$replaceAll^%zewdAPI(string,"%25",$c(1))
- i string["+" s string=$$replaceAll^%zewdAPI(string,"+","%20")
+ i string["%25" s string=$$replaceAll(string,"%25",$c(1))
+ i string["+" s string=$$replaceAll(string,"+","%20")
  f  q:string'["%"  d
  . s pos=$f(string,"%")
- . s c=$e(string,pos) s c=$$zcvt^%zewdAPI(c,"l") i "0123456789abcdef"'[c s string=$$replace^%zewdAPI(string,"%",$c(1)) q
- . s c=$e(string,pos+1) s c=$$zcvt^%zewdAPI(c,"l") i "0123456789abcdef"'[c s string=$$replace^%zewdAPI(string,"%",$c(1)) q
+ . s c=$e(string,pos) s c=$zconvert(c,"l") i "0123456789abcdef"'[c s string=$$replace(string,"%",$c(1)) q
+ . s c=$e(string,pos+1) s c=$zconvert(c,"l") i "0123456789abcdef"'[c s string=$$replace(string,"%",$c(1)) q
  . s hex=$e(string,pos,pos+1)
- . i $l(hex)'=2 s string=$$replace^%zewdAPI(string,"%",$c(1)) q
+ . i $l(hex)'=2 s string=$$replace(string,"%",$c(1)) q
  . s ascii=$$hexToDecimal(hex)
  . s string=$e(string,1,pos-2)_$c(ascii)_$e(string,pos+2,$l(string))
- i string[$c(1) s string=$$replaceAll^%zewdAPI(string,$c(1),"%")
+ i string[$c(1) s string=$$replaceAll(string,$c(1),"%")
  QUIT string
  ;
 urlEscape(string)
@@ -1857,7 +1854,7 @@ urlEscape(string)
  . s a=$a(c)
  . i $d(pass(a)) s esc=esc_c q
  . s a=$$hex^MDB(a)
- . s esc=esc_"%"_$$zcvt^%zewdAPI(a,"u")
+ . s esc=esc_"%"_$zconvert(a,"u")
  QUIT esc
  ;
 installMDBX(requestId,boxUsage) ; Install M/DB:X Extensions
@@ -1895,13 +1892,13 @@ initialise(requestId,boxUsage) ; Initialise the M/DB database
 	. i $e(line,1)="#" q
 	. i line["AdminstratorAccessKeyId"!(line["AdministratorAccessKeyId") d  q
 	. . s key=$p(line,"=",2)
-	. . s key=$$stripSpaces^%zewdAPI(key)
-	. . s key=$$replaceAll^%zewdAPI(key,$c(9),"")
+	. . s key=$$stripSpaces(key)
+	. . s key=$$replaceAll(key,$c(9),"")
 	. . i $e(key,1)="<" s key=""  ; user hasn't changed the explanatory text
 	. i line["AdminstratorSecretKey"!(line["AdministratorSecretKey") d  q
 	. . s secret=$p(line,"=",2)
-	. . s secret=$$stripSpaces^%zewdAPI(secret)
-	. . s secret=$$replaceAll^%zewdAPI(secret,$c(9),"")
+	. . s secret=$$stripSpaces(secret)
+	. . s secret=$$replaceAll(secret,$c(9),"")
 	. . i $e(secret,1)="<" s secret=""  ; user hasn't changed the explanatory text
 	. . s stop=1
 	c configFile
@@ -1946,18 +1943,19 @@ parseSelect(selectExpression,domainName,queryExpression,attributes,orderBy,limit
  ;
  n attributeList,error,no,p1
  ;
+ ;d trace("in parseSelect - selectExpression="_selectExpression)
  s error=""
  s limit=""
  s selectExpression=$$convertSubstringToLowerCase(selectExpression,"select ")
  s selectExpression=$$convertSubstringToLowerCase(selectExpression," and ")
- i selectExpression=$$stripSpaces^%zewdAPI(selectExpression)
+ i selectExpression=$$stripSpaces(selectExpression)
  i $e(selectExpression,1,7)'="select " QUIT $$invalid(1)
  s selectExpression=$$convertSubstringToLowerCase(selectExpression," from ")
  i selectExpression'[" from " QUIT $$invalid(3)
  s selectExpression=$$convertSubstringToLowerCase(selectExpression,"count(*)")
  s p1=$p(selectExpression,"select",2)
  s attributeList=$p(p1,"from",1)
- s attributeList=$$stripSpaces^%zewdAPI(attributeList)
+ s attributeList=$$stripSpaces(attributeList)
  i attributeList="" QUIT $$invalid(2)
  i attributeList="*" d
  . ; do nothing
@@ -1969,22 +1967,22 @@ parseSelect(selectExpression,domainName,queryExpression,attributes,orderBy,limit
  . f no=1:1 q:attributeList=""  d
  . . s p1=$p(attributeList,",",1)
  . . s attributeList=$p(attributeList,",",2,5000)
- . . s p1=$$stripSpaces^%zewdAPI(p1)
+ . . s p1=$$stripSpaces(p1)
  . . s attributes(no)=p1
  s p1=$p(selectExpression," from",2,1000)
  s domainName=p1
- s domainName=$$stripSpaces^%zewdAPI(domainName)
+ s domainName=$$stripSpaces(domainName)
  s domainName=$p(domainName," ",1)
  i domainName="" QUIT $$invalid(4)
  s selectExpression=$p(selectExpression,domainName,2,5000)
  s selectExpression=$$convertSubstringToLowerCase(selectExpression," where ")
- s selectExpression=$$stripSpaces^%zewdAPI(selectExpression)
+ s selectExpression=$$stripSpaces(selectExpression)
  s selectExpression=$$convertSubstringToLowerCase(selectExpression,"order by")
  s orderBy=""
  i selectExpression["order by" d
  . n attrName,dir
  . s orderBy=$p(selectExpression,"order by",2)
- . s orderBy=$$stripSpaces^%zewdAPI(orderBy)
+ . s orderBy=$$stripSpaces(orderBy)
  . s orderBy=$$convertSubstringToLowerCase(orderBy," limit ")
  . i orderBy[" limit " d
  . . s limit=$p(orderBy," limit ",2)
@@ -2000,7 +1998,7 @@ parseSelect(selectExpression,domainName,queryExpression,attributes,orderBy,limit
  . s selectExpression=$p(selectExpression,"limit ",1)
  s selectExpression=$p(selectExpression,"where",2,1000)
  s queryExpression=selectExpression
- s queryExpression=$$stripSpaces^%zewdAPI(queryExpression)
+ s queryExpression=$$stripSpaces(queryExpression)
  ;
  QUIT error
  ;
@@ -2008,8 +2006,8 @@ convertSubstringToLowerCase(string,subString)
  ;
  n lcString,newString,p1,pos,to1
  ;
- s lcString=$$zcvt^%zewdAPI(string)
- s subString=$$zcvt^%zewdAPI(subString)
+ s lcString=$zconvert(string,"l")
+ s subString=$zconvert(subString,"l")
  i lcString'[subString QUIT string
  s p1=$p(lcString,subString,1)
  s to1=$l(p1)
@@ -2047,8 +2045,8 @@ inProc(queryExpression,expr,thisWord)
  ;
 executeSelect(queryExpression,itemList,keyId,itemStack)
  n c,error,expr,inAttr,lastWord,thisWord
- i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": in executeSelect.  queryExpression="_queryExpression)
- i queryExpression["''" s queryExpression=$$replaceAll^%zewdAPI(queryExpression,"''",$c(2))
+ i $g(^zewd("trace"))=1 d trace($h_": in executeSelect.  queryExpression="_queryExpression)
+ i queryExpression["''" s queryExpression=$$replaceAll(queryExpression,"''",$c(2))
  k itemList
  s error=""
  s inAttr=0,expr="",lastWord="",thisWord=""
@@ -2094,10 +2092,10 @@ executeSelect(queryExpression,itemList,keyId,itemStack)
  . . . . f  s itemNo=$o(newList(itemNo)) q:itemNo=""  d
  . . . . . s no=no+1
  . . . . . s itemStack("list",no)=itemNo
- . . s queryExpression=$$stripSpaces^%zewdAPI(queryExpression)
+ . . s queryExpression=$$stripSpaces(queryExpression)
  . . s rel=$p(queryExpression," ",1)
  . . s queryExpression=$p(queryExpression," ",2,5000)
- . . s queryExpression=$$stripSpaces^%zewdAPI(queryExpression)
+ . . s queryExpression=$$stripSpaces(queryExpression)
  . . i queryExpression'="",$e(queryExpression,1)'="(" s queryExpression="("_queryExpression_")"
  . . s itemStack("rel")=rel
  . i c=")" d  quit  ; pop
@@ -2202,8 +2200,9 @@ runSelect(keyId,query,itemList,attributes,domainName)
  ;
  n error,limit,orderBy,queryExpression
  ;
+ ;d trace("in runSelect: query="_query)
  s error=$$parseSelect(query,.domainName,.queryExpression,.attributes,.orderBy,.limit)
- i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": completed parseSelect: queryExpression="_$g(queryExpression))
+ i $g(^zewd("trace"))=1 d trace($h_": completed parseSelect: queryExpression="_$g(queryExpression))
  i error'="" QUIT error
  i queryExpression="" d
  . i orderBy'="" d
@@ -2211,9 +2210,9 @@ runSelect(keyId,query,itemList,attributes,domainName)
  . e  d
  . . s error=$$runQuery(keyId,domainName,"",,.itemList)
  e  d
- . i queryExpression["itemName()" s queryExpression=$$replaceAll^%zewdAPI(queryExpression,"itemName()","itemName{}")
+ . i queryExpression["itemName()" s queryExpression=$$replaceAll(queryExpression,"itemName()","itemName{}")
  . s error=$$executeSelect(queryExpression,.itemList,keyId,.itemStack)
- . i $g(^zewd("trace"))=1 d trace^%zewdAPI($h_": finished executeSelect and returned to runSelect")
+ . i $g(^zewd("trace"))=1 d trace($h_": finished executeSelect and returned to runSelect")
  ;***
  i $d(itemStack("list")) k itemList m itemList=itemStack("list")
  ;***
@@ -2237,16 +2236,16 @@ numeric(value)
  QUIT 0
  ; 
 escape(value)
- i value["&" s value=$$replaceAll^%zewdAPI(value,"&","&amp;")
- i value["<" s value=$$replaceAll^%zewdAPI(value,"<","&lt;")
- i value[">" s value=$$replaceAll^%zewdAPI(value,">","&gt;")
+ i value["&" s value=$$replaceAll(value,"&","&amp;")
+ i value["<" s value=$$replaceAll(value,"<","&lt;")
+ i value[">" s value=$$replaceAll(value,">","&gt;")
  QUIT value
  ;
 externalSelect(keyId,selectExpression) ;
  ;
  n attributes,count,domainName,error,itemList,itemsAndAttrs,json,pos
  ;
- i $g(^zewd("trace"))=1 d trace^%zewdAPI("in externalSelect - keyId = "_keyId_": select="_selectExpression)
+ i $g(^zewd("trace"))=1 d trace("in externalSelect - keyId = "_keyId_": select="_selectExpression)
  s error=$$runSelect(keyId,selectExpression,.itemList,.attributes,.domainName)
  i error'="" d  QUIT json
  . s json="{""error"":{""errorCode"":"""_$p(error,"~",1)_""",""errorMessage"":"""_$p(error,"~",2)_"""}}"
@@ -2271,8 +2270,8 @@ externalSelect(keyId,selectExpression) ;
  . . . s vno=""
  . . . f  s vno=$o(attribs(no,"value",vno)) q:vno=""  d
  . . . . s val=attribs(no,"value",vno)
- . . . . s val=$$replaceAll^%zewdAPI(val,"""","\""")
- . . . . s val=$$replaceAll^%zewdAPI(val,"\","\\")
+ . . . . s val=$$replaceAll(val,"""","\""")
+ . . . . s val=$$replaceAll(val,"\","\\")
  . . . . s attribArray(no,"v",vno)=val
  . . m itemsAndAttrs(pos,"a")=attribArray
  . . s itemsAndAttrs(pos,"i")=itemName
@@ -2285,8 +2284,72 @@ externalSelect(keyId,selectExpression) ;
  . s json="["_json_"]"
  e  d
  . s json=$$arrayToJSON^zmwire("itemsAndAttrs")
- i $g(^zewd("trace"))=1 d trace^%zewdAPI("json="_json)
+ i $g(^zewd("trace"))=1 d trace("json="_json)
  QUIT json
+ ;
+trace(text,clear) ; trace  ;
+ n i
+ s text=$g(text)
+ i $g(clear)=1 k ^%zewdTrace
+ s i=$increment(^%zewdTrace)
+ s ^%zewdTrace(i)=text
+ QUIT
+ ;
+replaceAll(InText,FromStr,ToStr) ; Replace all occurrences of a substring
+ ;
+ n p
+ ;
+ s p=InText
+ i ToStr[FromStr d  QUIT p
+ . n i,stop,tempText,tempTo
+ . s stop=0
+ . f i=0:1:255 d  q:stop
+ . . q:InText[$c(i)
+ . . q:FromStr[$c(i)
+ . . q:ToStr[$c(i)
+ . . s stop=1
+ . s tempTo=$c(i)
+ . s tempText=$$replaceAll(InText,FromStr,tempTo)
+ . s p=$$replaceAll(tempText,tempTo,ToStr)
+ f  q:p'[FromStr  S p=$$replace(p,FromStr,ToStr)
+ QUIT p
+ ;
+replace(InText,FromStr,ToStr) ; replace old with new in string
+ ;
+ n np,p1,p2
+ ;
+ i InText'[FromStr q InText
+ s np=$l(InText,FromStr)+1
+ s p1=$p(InText,FromStr,1),p2=$p(InText,FromStr,2,np)
+ QUIT p1_ToStr_p2
+ ;
+stripSpaces(string)
+ i $zv["Cache" QUIT $$stripSpaces^MDBMCache(string)
+ ;
+ s string=$$stripLeadingSpaces(string)
+ QUIT $$stripTrailingSpaces(string)
+ ;
+stripLeadingSpaces(string)
+ ;
+ n i
+ ;
+ f i=1:1:$l(string) QUIT:$e(string,i)'=" "
+ QUIT $e(string,i,$l(string))
+ ;
+stripTrailingSpaces(string)
+ ;
+ n i,spaces,new
+ ;
+ s spaces=$$makeString(" ",100)
+ s new=string_spaces
+ QUIT $p(new,spaces,1)
+ ;
+makeString(char,len) ; create a string of len characters
+ ;
+ n str
+ ;
+ s str="",$p(str,char,len+1)=""
+ QUIT str
  ;
 test
  s select="select * from testing where attr3 = 'control'"
