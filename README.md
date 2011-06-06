@@ -67,7 +67,7 @@ You should have received a copy of the GNU Affero General Public License along w
 ## The node-mdb Virtual Appliance
 
  This is the quickest and simplest way to get a node-mdb system up and running.  See the 
- detailed instructions at the [M/Gateway web site[ (http://www.mgateway.com/node-mdb.html).
+ detailed instructions at the [M/Gateway web site] (http://www.mgateway.com/node-mdb.html).
 
 ## Building your own node-mdb system
 
