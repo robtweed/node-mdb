@@ -55,7 +55,7 @@ zmwire ; M/Wire Protocol for M Systems (eg GT.M, Cache)
  ;    Stop the Daemon process using ^RESJOB and restart it.
  ;
 mwireVersion
- ;;Build 18
+ ;;Build 19
  ;
 mwireDate
  ;;09 June 2011
@@ -216,6 +216,7 @@ multiBulkRequest()
  . . i space="" s space=" " q
  . . i space=" " s space=$c(1)
  i param(1)="EXECUTE" d  QUIT input
+ . s param(3)=$$replaceAll(param(3),"\""","""""")
  . i $e(param(3),1)="[" s input=param(1)_" "_param(2)_"("_$e(param(3),2,$l(param(3))-1)_")" q
  . s input=param(1)_" "_param(2)
  ;
@@ -556,7 +557,7 @@ multiGet(input)
  ;]
  ;
  ;
- s error=$$parseJSON^%zewdJSON(input,.props,1)
+ s error=$$parseJSON(input,.props,1)
  i error'="" s output="-"_error_crlf w output QUIT
  ;
  s stop=0,error="",json="[",comma=""
@@ -668,7 +669,7 @@ runTransaction(input)
  ;
  n error,globalName,i,json,props,ref,result,stop,subscripts
  ;
- s error=$$parseJSON^%zewdJSON(input,.props,1)
+ s error=$$parseJSON(input,.props,1)
  i error'="" s output="-"_error_crlf w output QUIT
  ;
  s stop=0,error=""
@@ -755,7 +756,7 @@ setJSON(input)
  s gloRef=gloName
  i gloRef["^zmwire" s output="-No access allowed to this global"_crlf w output QUIT
  i subs'="" s gloRef=gloRef_"("_subs_")"
- s error=$$parseJSON^%zewdJSON(json,.props,1)
+ s error=$$parseJSON(json,.props,1)
  i error'="" s output="-Invalid JSON in setJSON: "_json_crlf w output QUIT
  ;
  s ref=""
@@ -864,6 +865,7 @@ function(input)
  s $zt=""
  s output="$"_$l(data)_crlf_data_crlf
  w output
+ i $g(^mwire("logger"))=1 d logger("function")
  QUIT
  ;
 decr(input)
@@ -1342,7 +1344,7 @@ copy(input)
  n fromGlo,killToFirst,p2,response,toGlo,x
  ;
  ; COPY fromGlobal["1","a"] toGlobal["x"] 1
- d trace^%zewdAPI("copy: input="_input)
+ d trace("copy: input="_input)
  s $zt=$$zt()
  s fromGlo=$p(input,$c(1),1)
  s toGlo=$p(input,$c(1),2)
@@ -1360,7 +1362,7 @@ copy(input)
  s x=x_"m "_toGlo_"="_fromGlo
  x x
  ;
- d trace^%zewdAPI("x="_x)
+ d trace("x="_x)
  s response="+ok"_crlf
  i $g(^%zewd("trace"))=1 d trace("copy: response="_response)
  w response

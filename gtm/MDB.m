@@ -25,10 +25,10 @@ MDB ; M/DB: Mumps Emulation of Amazon SimpleDB
  ;
  ;
 version()	
-	QUIT "42"
+	QUIT "43"
 	;
 buildDate()	
-	QUIT "04 June 2011"
+	QUIT "09 June 2011"
 	;
 indexLength()
  QUIT 180
@@ -366,6 +366,63 @@ putAttributes(keyId,domainName,itemName,attributes,requestId,boxUsage)
  ;
  d updateDomainMetaData(keyId,domainId)
  QUIT $$end(startTime,.boxUsage)
+ ;
+batchPutItem(keyId,domainId,itemName,attributesJSON)
+ ;
+ n attribId,attributes,error,itemId,name,namex,no,replace,value,valueId,valuex,xvalue
+ ;
+ ;d trace^zmwire("batchPutItem: keyid="_keyId_"; domainId="_domainId_"; itemName="_itemName_"; attributes="_attributesJSON)
+ s itemName=$g(itemName)
+ i itemName="" QUIT 0
+ s itemId=$$getItemId(keyId,domainId,itemName)
+ i itemId="" d
+ . ; add Item to Domain if it's new
+ . n itemNamex
+ . s itemNamex=$e(itemName,1,$$indexLength())
+ . s itemId=$increment(^MDB(keyId,"domains",domainId,"items"))
+ . s ^MDB(keyId,"domains",domainId,"itemIndex",itemNamex,itemId)=""
+ . s ^MDB(keyId,"domains",domainId,"items",itemId)=itemName
+ . s ^MDB(keyId,"domains",domainId,"attribs",0)="itemName()"
+ . s ^MDB(keyId,"domains",domainId,"attribsIndex","itemName()",0)=""
+ . s ^MDB(keyId,"domains",domainId,"items",itemId,"attribs",0,"value")=1
+ . s ^MDB(keyId,"domains",domainId,"items",itemId,"attribs",0,"value",1)=itemName
+ . s ^MDB(keyId,"domains",domainId,"queryIndex",0,itemNamex,itemId)=""
+ ;
+ s error=$$parseJSON^zmwire(attributesJSON,.attributes,1)
+ ;
+ ; attributes(no,"name")=attribute name
+ ; attributes(no,"value")=attribute value
+ ; attributes(no,"replace")=1
+ ;
+ s no=""
+ f  s no=$o(attributes(no)) q:no=""  d
+ . s name=$g(attributes(no,"name"))
+ . s value=$g(attributes(no,"value"))
+ . i value="" s value=$c(31)
+ . s replace=+$g(attributes(no,"replace"))
+ . s namex=$e(name,1,$$indexLength())
+ . s valuex=$e(value,1,$$indexLength())
+ . s attribId=$$getAttributeId(keyId,domainId,name)
+ . i attribId="" d
+ . . ; add new attribute name to the domain
+ . . s attribId=$increment(^MDB(keyId,"domains",domainId,"attribs"))
+ . . s ^MDB(keyId,"domains",domainId,"attribs",attribId)=name
+ . . s ^MDB(keyId,"domains",domainId,"attribsIndex",namex,attribId)=""
+ . s valueId=$$getAttributeValueId(keyId,domainId,itemId,attribId,value)
+ . i 'replace,valueId'="" q  ; Not allowed to have more than one attribute with the same name and value
+ . i replace d
+ . . ; first remove any existing values for this attribute name
+ . . f  s valueId=$o(^MDB(keyId,"domains",domainId,"items",itemId,"attribs",attribId,"value",valueId)) q:valueId=""  d
+ . . . s xvalue=^MDB(keyId,"domains",domainId,"items",itemId,"attribs",attribId,"value",valueId)
+ . . . k ^MDB(keyId,"domains",domainId,"items",itemId,"attribs",attribId,"valueIndex",xvalue,valueId)
+ . . . k ^MDB(keyId,"domains",domainId,"queryIndex",attribId,xvalue,itemId)
+ . . k ^MDB(keyId,"domains",domainId,"items",itemId,"attribs",attribId,"value")
+ . ; now add the new attribute name/value pair
+ . s valueId=$increment(^MDB(keyId,"domains",domainId,"items",itemId,"attribs",attribId,"value"))
+ . s ^MDB(keyId,"domains",domainId,"items",itemId,"attribs",attribId,"value",valueId)=value
+ . s ^MDB(keyId,"domains",domainId,"items",itemId,"attribs",attribId,"valueIndex",valuex,valueId)=""
+ . s ^MDB(keyId,"domains",domainId,"queryIndex",attribId,valuex,itemId)=""
+ QUIT 1
  ;
 getAttributes(keyId,domainName,itemName,attributes,requestId,boxUsage,suppressBoxUsage)
  ;
