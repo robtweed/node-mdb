@@ -55,10 +55,10 @@ zmwire ; M/Wire Protocol for M Systems (eg GT.M, Cache)
  ;    Stop the Daemon process using ^RESJOB and restart it.
  ;
 mwireVersion
- ;;Build 17
+ ;;Build 18
  ;
 mwireDate
- ;;02 June 2011
+ ;;09 June 2011
  ;
 version
  ;
@@ -306,6 +306,16 @@ monitoroutput
  . k ^zmwire("monitor","output",$j,lineNo)
  QUIT
  ;
+logger(command,initialise)
+ ;
+ n tot,count
+ ;
+ i $g(initialise) k ^mwireLogger
+ s tot=$increment(^mwireLogger)
+ s count=$increment(^mwireLogger(command))
+ ;
+ QUIT
+ ;
 info
  ;
  n count,ignore,pid,response
@@ -421,6 +431,7 @@ set(input)
  s output="$"_$l(json)_crlf_json_crlf
  w output
  i $g(^zewd("trace"))=1 d trace("set: ok:true sent")
+ i $g(^mwire("logger"))=1 d logger("set")
  QUIT
  ;
 getGlobalList()
@@ -506,6 +517,7 @@ get(input)
  s response="$"_$l(data)_crlf_data_crlf
  ;
  w response
+ i $g(^mwire("logger"))=1 d logger("get")
  QUIT
  ;
 getGlobal(input)
@@ -530,6 +542,7 @@ getGlobal(input)
  ;
  w response
  i $g(^zewd("trace"))=1 d trace("getGlobal: response="_response)
+ i $g(^mwire("logger"))=1 d logger("getGlobal")
  QUIT
  ;
 multiGet(input)
@@ -629,6 +642,7 @@ kill(input)
  s response="+ok"_crlf
  i $g(^%zewd("trace"))=1 d trace("kill: response="_response)
  w response
+ i $g(^mwire("logger"))=1 d logger("kill")
  QUIT
  ;
 data(input)
@@ -647,6 +661,7 @@ data(input)
  i $g(^zewd("trace"))=1 d trace("input="_input_"; data="_data)
  s output=":"_data_crlf
  w output
+ i $g(^mwire("logger"))=1 d logger("data")
  QUIT
  ;
 runTransaction(input)
@@ -751,6 +766,7 @@ setJSON(input)
  s response="+OK"_crlf
  w response
  i $g(^zewd("trace"))=1 d trace("setJSON: response="_response)
+ i $g(^mwire("logger"))=1 d logger("setJSON")
  ;
  QUIT
  ;
@@ -782,6 +798,7 @@ getJSON(input)
  ;
  w response
  ;
+ i $g(^mwire("logger"))=1 d logger("getJSON")
  QUIT
  ;
 incr(input)
@@ -799,6 +816,7 @@ incr(input)
  s $zt=""
  s output=":"_data_crlf
  w output
+ i $g(^mwire("logger"))=1 d logger("incr")
  QUIT
  ;
 incrby(input)
@@ -826,6 +844,7 @@ incrby(input)
  s $zt=""
  s output=":"_data_crlf
  w output
+ i $g(^mwire("logger"))=1 d logger("incrbr")
  QUIT
  ;
 function(input)
@@ -861,6 +880,7 @@ decr(input)
  s $zt=""
  s output=":"_data_crlf
  w output
+ i $g(^mwire("logger"))=1 d logger("decr")
  QUIT
  ;
 decrby(input)
@@ -889,6 +909,7 @@ decrby(input)
  s $zt=""
  s output=":"_data_crlf
  w output
+ i $g(^mwire("logger"))=1 d logger("decrby")
  QUIT
  ;
 nextSubscript(input,direction)
@@ -916,6 +937,7 @@ nextSubscript(input,direction)
  s response="$"_$l(response)_crlf_response_crlf
  i $g(^zewd("trace"))=1 d trace("nextsubscript: response="_response)
  w response
+ i $g(^mwire("logger"))=1 d logger("nextsubscript")
  ;
  QUIT
  ;
@@ -935,6 +957,7 @@ order(input)
  i data="" s output="$-1"_crlf w output QUIT
  s output="$"_$l(data)_crlf_data_crlf
  w output
+ i $g(^mwire("logger"))=1 d logger("order")
  QUIT
  ;
 reverseorder(input)
@@ -953,6 +976,7 @@ reverseorder(input)
  i data="" s output="$-1"_crlf w output QUIT
  s output="$"_$l(data)_crlf_data_crlf
  w output
+ i $g(^mwire("logger"))=1 d logger("reverseorder")
  QUIT
  ;
 query(input)
@@ -976,6 +1000,7 @@ query(input)
  s output="$"_$l(data)_crlf_data_crlf
  w output
  s $zt=""
+ i $g(^mwire("logger"))=1 d logger("query")
  QUIT
  ;
 queryget(input)
@@ -1005,6 +1030,7 @@ queryget(input)
  s output="$"_$l(value)_crlf_value_crlf
  w output
  s $zt=""
+ i $g(^mwire("logger"))=1 d logger("queryget")
  QUIT
  ;
 lock(input)
@@ -1098,6 +1124,7 @@ getAllSubscripts(input)
  . . w response
  s response="]"_crlf
  w response
+ i $g(^mwire("logger"))=1 d logger("getallsubscripts")
  ;
  QUIT
  ;
@@ -1155,6 +1182,7 @@ orderall(input)
  w output
  f i=1:1:rec w ^CacheTempEWD($j,i)
  k ^CacheTempEWD($j)
+ i $g(^mwire("logger"))=1 d logger("orderall")
  QUIT
  ;
 mergefrom(input)
@@ -1337,6 +1365,7 @@ copy(input)
  i $g(^%zewd("trace"))=1 d trace("copy: response="_response)
  w response
  s $zt=""
+ i $g(^mwire("logger"))=1 d logger("copy")
  ;
  QUIT
  ;
