@@ -17,6 +17,7 @@ See [http://www.mgateway.com/mdb.html](http://www.mgateway.com/mdb.html) for bac
 
 This is an early release of *node-mdb* and does not currently fully support the entire range of SimpleDB APIs.  The APIs implemented so far are:
 
+- BatchPutAttributes
 - CreateDomain
 - DeleteDomain
 - ListDomains
@@ -36,7 +37,7 @@ present), all other Select expressions can be optionally handled by the legacy v
 node-mdb will provide full Select functionality as per SimpleDB.
 	  
 	  
-The Bulk APIs have not yet been implemented.
+The BatchDeleteAttributes API has not yet been implemented.
 	  
 Future versions will add these missing APIs and extend the capabilities of the Select API.
 
