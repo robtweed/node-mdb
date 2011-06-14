@@ -55,10 +55,10 @@ zmwire ; M/Wire Protocol for M Systems (eg GT.M, Cache)
  ;    Stop the Daemon process using ^RESJOB and restart it.
  ;
 mwireVersion
- ;;Build 19
+ ;;Build 20
  ;
 mwireDate
- ;;09 June 2011
+ ;;13 June 2011
  ;
 version
  ;
@@ -1826,6 +1826,7 @@ getJSONValue(buff)
  ;
 numeric(value)
  i $e(value,1)=0,$l(value)>1 QUIT 0
+ i $e(value,1,2)="-0",$l(value)>2,$e(value,1,3)'="-0." QUIT 0
  i value?1N.N QUIT 1
  i value?1"-"1N.N QUIT 1
  i value?1N.N1"."1N.N QUIT 1
