@@ -55,10 +55,10 @@ zmwire ; M/Wire Protocol for M Systems (eg GT.M, Cache)
  ;    Stop the Daemon process using ^RESJOB and restart it.
  ;
 mwireVersion
- ;;Build 20
+ ;;Build 21
  ;
 mwireDate
- ;;13 June 2011
+ ;;19 June 2011
  ;
 version
  ;
@@ -184,24 +184,32 @@ multiBulkRequest()
  s noOfCommands=""
  f  d  q:c=13
  . r *c q:c=13
+ . ;d trace("0: "_$c(c))
  . s noOfCommands=noOfCommands_$c(c)
  r *x
+ ;d trace("1: "_$c(x))
  ;
  f i=1:1:noOfCommands d
+ . ;d trace("i="_i)
  . s len=""
  . f  d  q:c=13
  . . r *c
+ . . ;d trace("2: "_$c(c))
  . . i $c(c)="$",len="" q
  . . q:c=13
  . . s len=len_$c(c)
  . r *c
+ . ;d trace("3: "_$c(c))
  . s input=""
  . i len=0 d
  . . s param(i)=""
  . . r *c
+ . . ;d trace("4: "_$c(c))
  . e  d
  . . r input#len
+ . . ;d trace("input="_input)
  . . s param(i)=input
+ . . ;d trace("param "_i_" = "_input)
  . . r *c,*c
  ;
  s param(1)=$zconvert(param(1),"U")
@@ -209,7 +217,7 @@ multiBulkRequest()
  i param(1)="PING" QUIT param(1)
  i param(1)="SET" QUIT param(1)_" "_param(2)_" "_$l(param(3))_crlf_param(3)
  i param(1)="SETJSONSTRING" QUIT param(1)_" "_param(2)_crlf_param(3)_crlf_param(4)
- i param(1)="COPYGLOBAL" d  QUIT input
+ i param(1)="COPYGLOBAL"!(param(1)="GETSUBSCRIPTS") d  QUIT input
  . s space="",input=""
  . f i=1:1:noOfCommands d
  . . s input=input_space_param(i)
@@ -991,13 +999,18 @@ query(input)
  i gloRef["^zmwire" s output="-No access allowed to this global"_crlf w output QUIT
  s x="s data=$q("_gloRef_")"
  s $zt=$$zt()
+ ;d trace("query x="_x)
  x x
  i data="" s output="$-1"_crlf w output QUIT
  s data=$e(data,2,$l(data))
+ ;d trace("data="_data)
  s p1=$p(data,"(",1)
- s nb=$p(data,"(")+2
+ s nb=$l(data,"(")+2
+ ;d trace("nb="_nb)
  s p2=$p(data,"(",2,nb)
+ d trace("1 p2="_p2)
  s p2=$e(p2,1,$l(p2)-1)
+ ;d trace("2 p2="_p2)
  s data=p1_"["_p2_"]"
  s output="$"_$l(data)_crlf_data_crlf
  w output
@@ -1022,7 +1035,7 @@ queryget(input)
  w output
  s data=$e(data,2,$l(data))
  s p1=$p(data,"(",1)
- s nb=$p(data,"(")+2
+ s nb=$l(data,"(")+2
  s p2=$p(data,"(",2,nb)
  s p2=$e(p2,1,$l(p2)-1)
  s data=p1_"["_p2_"]"
@@ -1086,11 +1099,20 @@ unlock(input)
  ;
 getAllSubscripts(input)
  ;
- n comma,data,exists,i,gloRef,len,rec,ref,subscripts,subs,subs1,x
+ n comma,data,exists,from,i,gloRef,len,numericEnd,rec,ref
+ n stop,subscripts,subs,subs1,to,x
  ;
- ; GETSUBSCRIPTS myglobal["1","xx yy"] 
+ ; GETSUBSCRIPTS myglobal["1","xx yy"] fromValue toValue
  ; 
- s gloRef=$$getGloRef(input)
+ s gloRef=$p(input,$c(1),1)
+ s gloRef=$$getGloRef(gloRef)
+ s from=$p(input,$c(1),2)
+ i from="zz-null" s from=""
+ s to=$p(input,$c(1),3)
+ i to="zz-null" s to=""
+ s numericEnd=$$numeric(to)
+ ;d trace("to="_to_": numeric = "_numericEnd)
+ ;
  i gloRef["^zmwire" s output="-No access allowed to this global"_crlf w output QUIT
  i $e(gloRef,$l(gloRef))=")" d
  . s x="s exists=$d("_gloRef_")"
@@ -1103,27 +1125,50 @@ getAllSubscripts(input)
  s $zt=""
  i 'exists!(exists=1) s output="$2"_crlf_"[]"_crlf w output QUIT
  ;
- s subs=""
+ s subs=from
  s subs1=subs i subs1["""" s subs1=$$replaceAll(subs1,"""","""""")
+ i from'="" d
+ . s x="s subs1=$o("_gloRef_""""_subs1_"""),-1)"
+ . ;d trace("1 x="_x)
+ . x x
  s x="s subs=$o("_gloRef_""""_subs1_"""))"
  x x
  s len=3+$l(subs)
- s comma=","
+ s comma=",",stop=0
  i subs'="" d
- . f  s subs=$o(^(subs)) q:subs=""  d
+ . f  s subs=$o(^(subs)) q:stop  d
+ . . i subs="" s stop=1 q
+ . . i to'="" d  q:stop
+ . . . i numericEnd d
+ . . . . ;d trace("numeric: subs="_subs_": to="_to)
+ . . . . i $$numeric(subs),subs>to s stop=1
+ . . . e  d
+ . . . . i subs]to s stop=1
  . . s len=len+$l(comma)+2+$l(subs)
+ ;d trace("3 len="_len)
  s len=len+1
  s response="$"_len_crlf
  w response
  ;
  s x="s subs=$o("_gloRef_""""_subs1_"""))"
+ ;d trace("4 x="_x)
+ ;d trace("xx to="_to)
  x x
  s response="["""_subs_""""
  w response
  i subs'="" d
- . f  s subs=$o(^(subs)) q:subs=""  d
+ . s stop=0
+ . f  s subs=$o(^(subs)) q:stop  d
+ . . i subs="" s stop=1 q
+ . . i to'="" d  q:stop
+ . . . i numericEnd d
+ . . . . ;d trace("numeric: subs="_subs_": to="_to)
+ . . . . i $$numeric(subs),subs>to s stop=1
+ . . . e  d
+ . . . . i subs]to s stop=1
  . . s response=comma_""""_subs_""""
  . . w response
+ ;d trace("5 response="_response)
  s response="]"_crlf
  w response
  i $g(^mwire("logger"))=1 d logger("getallsubscripts")
@@ -1344,7 +1389,7 @@ copy(input)
  n fromGlo,killToFirst,p2,response,toGlo,x
  ;
  ; COPY fromGlobal["1","a"] toGlobal["x"] 1
- d trace("copy: input="_input)
+ i $g(^%zewd("trace"))=1 d trace("copy: input="_input)
  s $zt=$$zt()
  s fromGlo=$p(input,$c(1),1)
  s toGlo=$p(input,$c(1),2)
@@ -1362,7 +1407,7 @@ copy(input)
  s x=x_"m "_toGlo_"="_fromGlo
  x x
  ;
- d trace("x="_x)
+ i $g(^%zewd("trace"))=1 d trace("x="_x)
  s response="+ok"_crlf
  i $g(^%zewd("trace"))=1 d trace("copy: response="_response)
  w response
