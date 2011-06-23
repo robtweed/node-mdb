@@ -1,11 +1,12 @@
 # node-mdb
  
-node-mdb is a re-implementation of M/DB, the Open Source clone of SimpleDB
+*node-mdb* is a Node.js-based Open Source clone of Amazon SimpleDB
 
-It has been completely re-written in Node.js Javascript and uses the free, Open Source GT.M database as the data repository.
+It is a re-implementation of M/DB, but re-written in Node.js Javascript.  Like M/DB, it uses the free, Open Source 
+GT.M database as the data repository.  *node-mdb* is a fully-fledged database, not simply a mock service.
 
 Rob Tweed <rtweed@mgateway.com>  
-26 May 2011, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+23 June 2011, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter @rtweed
 
@@ -15,8 +16,9 @@ See [http://www.mgateway.com/mdb.html](http://www.mgateway.com/mdb.html) for bac
 
 ## Important Note
 
-This is an early release of *node-mdb* and does not currently fully support the entire range of SimpleDB APIs.  The APIs implemented so far are:
+All the SimpleDB APIs have been implemented, ie:
 
+- BatchDeleteAttributes
 - BatchPutAttributes
 - CreateDomain
 - DeleteDomain
@@ -26,22 +28,22 @@ This is an early release of *node-mdb* and does not currently fully support the 
 - GetAttributes
 - DeleteAttributes
 
-None of these APIs currently support the NextToken mechanism.  All matching records will be returned.
+However, none of these APIs currently support the NextToken mechanism, so all matching records will be returned.  You may find 
+other missing functionality, but the most common use cases of the APIs should be fully compatible with SimpleDB.
 
-Select can be used, but the only expression that is executed within node-mdb at present is:
+Select can be used, but the only expression that has been implemented in Javascript within node-mdb at present is:
 
       Select * from [yourDomainName]
 
 However, provided you are also running the legacy version of M/DB (ie the MDB.m routine should be
-present), all other Select expressions can be optionally handled by the legacy version, in which case
+present), all other Select expressions will be handled by the legacy version, in which case
 node-mdb will provide full Select functionality as per SimpleDB.
 	  
-	  
-The BatchDeleteAttributes API has not yet been implemented.
-	  
-Future versions will add these missing APIs and extend the capabilities of the Select API.
+Future versions will extend the capabilities of the Javascript implementation of the Select API.
 
-The current version uses HTTP, but could be adapted for use with HTTPS
+Please report any problems to the M/DB Google Group: [http://groups.google.co.uk/group/mdb-community-forum](http://groups.google.co.uk/group/mdb-community-forum)
+
+Note: the current version uses HTTP, but could be adapted for use with HTTPS
 	  
 ## License
 
