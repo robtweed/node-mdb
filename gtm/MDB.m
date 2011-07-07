@@ -25,10 +25,10 @@ MDB ; M/DB: Mumps Emulation of Amazon SimpleDB
  ;
  ;
 version()	
-	QUIT "43"
+	QUIT "44"
 	;
 buildDate()	
-	QUIT "09 June 2011"
+	QUIT "06 July 2011"
 	;
 indexLength()
  QUIT 180
@@ -1388,7 +1388,11 @@ mergeLists(toList,fromList)
 queryPredicate(query,keyId,domainId,itemList,name)
  n c,compOp,error,i,inString,no,not,predicate,relation,stop,value
  ;
- i query["\'" s query=$$replaceAll(query,"\'",$c(1))
+ ;d trace("in queryPredicate - query="_query)
+ d
+ . n queryx
+ . s queryx=$$replaceAll(query,"\\",$c(3))
+ . i queryx["\'" s query=$$replaceAll(queryx,"\'",$c(1))
  i query["''" s query=$$replaceAll(query,"''",$c(1))
  i query[$c(32,1,39) s query=$$replaceAll(query,$c(32,1,39),$c(32,39,1))
  i query[$c(61,1,39) s query=$$replaceAll(query,$c(61,1,39),$c(61,39,1))
@@ -1399,6 +1403,7 @@ queryPredicate(query,keyId,domainId,itemList,name)
  s inString=0
  s query=$e(query,2,$l(query))
  s stop=0
+ ;d trace("1 query="_query)
  f i=1:1:$l(query) d  q:stop
  . s c=$e(query,i)
  . i c="'" s inString='inString
@@ -1406,14 +1411,20 @@ queryPredicate(query,keyId,domainId,itemList,name)
  . . s predicate=$e(query,1,i-1)
  . . s query=$e(query,i+1,$l(query))
  . . s stop=1
+ ;d trace("predicate="_predicate)
  i predicate="" QUIT $$queryError(8)
  s query=$$stripSpaces(query)
+ ;d trace("query="_query)
  s error=$$parsePredicate(.predicate,.name,.compOp,.value)
  i error'="" QUIT error
  s no=1
+ ;d trace("predicate="_predicate)
  i predicate'="" d  i error'="" QUIT error
+ . ;d trace("name="_name)
  . s name(1)=name
+ . ;d trace("compOp="_compOp)
  . s compOp(1)=compOp
+ . ;d trace("value="_value)
  . i value="" s value=$c(31)
  . s value(1)=value
  . f  q:predicate=""  d  q:error'=""
@@ -1425,6 +1436,7 @@ queryPredicate(query,keyId,domainId,itemList,name)
  . . . s predicate=$e(predicate,3,$l(predicate))
  . . . s error=$$parseSubPredicate(.predicate,.name,.compOp,.value,.no)
  . . . s relation(no)="!"
+ ;d trace("about to run executeQuery")
  d executeQuery(keyId,domainId,no,.name,.compOp,.value,.relation,.itemList)
  i not d not(.itemList)
  QUIT error
@@ -1442,37 +1454,54 @@ parseSubPredicate(predicate,name,compOp,value,no)
  QUIT ""
  ;
 parsePredicate(predicate,name,compOp,value)
- n error
+ n c1,cx,error
  ;
+ ;d trace("in parsePredicate - predicate="_predicate)
  s predicate=$$stripSpaces(predicate)
- i $e(predicate,1)'="'" QUIT $$queryError(10)
- i $e(predicate,$l(predicate))'="'" QUIT $$queryError(11)
+ s c1=$e(predicate,1)
+ ;d trace("c1="_c1)
+ i c1'="'" QUIT $$queryError(10)
+ s cx=$e(predicate,$l(predicate))
+ ;d trace("cx="_cx)
+ i cx'="'",cx'="""" QUIT $$queryError(11)
+ ;d trace("passed 1")
+ ;d trace("111 predicate="_predicate)
  s error=$$getIdentifier(.predicate,.name)
+ ;d trace("name="_name)
  i error'="" QUIT error
  i name="" QUIT $$queryError(13)
  s error=$$getCompOp(.predicate,.compOp)
  i error'="" QUIT error
+ ;d trace("222 predicate="_predicate)
  s error=$$getIdentifier(.predicate,.value)
+ ;d trace("222 value="_value)
  i value="" s value=$c(31)
  i error'="",compOp="starts-with",value="" s error=""
  QUIT error
  ;
 getIdentifier(predicate,identifier)
  ;
- n c,error,escaped,i
+ n c,c1,cx,error,escaped,i
  ;
  s error=""
  s identifier=""
  s escaped=0
- i $e(predicate,1)'="'" QUIT $$queryError(12)
+ s c1=$e(predicate,1)
+ ;d trace("in getIdentifier: c1="_c1)
+ i c1'="'",c1'="""" QUIT $$queryError(12)
+ s cx=c1
  f i=2:1:$l(predicate) d  q:identifier'=""
  . s c=$e(predicate,i)
- . i c="\" s escaped=1 q
- . i 'escaped,c="'" d  q
+ . i c="\",'escaped s escaped=1 q
+ . i 'escaped,c=cx d  q
  . . s identifier=$e(predicate,2,i-1)
  . . s predicate=$e(predicate,i+1,$l(predicate))
  . . s predicate=$$stripSpaces(predicate)
  . i escaped s escaped=0
+ i identifier["\\" d
+ . s identifier=$$replaceAll(identifier,"\\",$c(5))
+ . s identifier=$$replaceAll(identifier,$c(5),"\")
+ ;d trace("predicate="_predicate_"; identifier="_identifier)
  ;i identifier="" QUIT $$queryError(13)
  QUIT error
  ;
@@ -1567,12 +1596,15 @@ executeQuery(keyId,domainId,no,name,compOp,value,relation,itemList)
  n attribId,expr,func,itemId,itemName,pos,stop,xvalue
  ;
  s attribId=""
- ;d trace("xx keyId="_keyId_"; domainId="_domainId_"; name="_name)
- i $g(name)'="" s attribId=$$getAttributeId(keyId,domainId,name)
+ ;d trace("xx keyId="_keyId_"; domainId="_domainId_"; name="_name_": no="_no)
+ i $g(name)'="" d
+ . i $e(name,1)="`",$e(name,$l(name))="`" s name=$e(name,2,$l(name)-1)
+ . i name["``" s name=$$replace(name,"``","`")
+ . s attribId=$$getAttributeId(keyId,domainId,name)
  ;d trace("xx attribId="_attribId)
  i attribId="",compOp'="isNull" QUIT
  ;
- i 
+ ;d trace("name="_name_"; value="_value_"; compOp="_compOp)
  i value[$c(1) s value=$tr(value,$c(1),"'")
  i name[$c(1) s name=$tr(name,$c(1),"'")
  i no=1,compOp="=" d  QUIT
@@ -1580,6 +1612,7 @@ executeQuery(keyId,domainId,no,name,compOp,value,relation,itemList)
  . f  s itemId=$o(^MDB(keyId,"domains",domainId,"queryIndex",attribId,value,itemId)) q:itemId=""  d
  . . s pos=pos+1
  . . s itemList(pos)=$g(^MDB(keyId,"domains",domainId,"items",itemId))
+ . . ;d trace(value_" found for itemId="_itemId)
  ;
  i no=1,compOp="!=" d  QUIT
  . s xvalue="",pos=0
@@ -1648,6 +1681,7 @@ executeQuery(keyId,domainId,no,name,compOp,value,relation,itemList)
  . . . s itemList(pos)=$g(^MDB(keyId,"domains",domainId,"items",itemId))
  ;
  i no=1,compOp="like" d
+ . i value["\%" s value=$$replaceAll(value,"\%",$c(6))
  . i $e(value,1)="%",$e(value,$l(value))="%" d  q
  . . s value=$e(value,2,$l(value)-1)
  . . s compOp="contains"
@@ -1658,6 +1692,7 @@ executeQuery(keyId,domainId,no,name,compOp,value,relation,itemList)
  . . s value=$e(value,2,$l(value))
  . . s compOp="ends-with"
  i no=1,compOp="notlike" d
+ . i value["\%" s value=$$replaceAll(value,"\%",$c(6))
  . i $e(value,1)="%",$e(value,$l(value))="%" d  q
  . . s value=$e(value,2,$l(value)-1)
  . . s compOp="does-not-contain"
@@ -1669,6 +1704,7 @@ executeQuery(keyId,domainId,no,name,compOp,value,relation,itemList)
  . . s compOp="does-not-end-with"
  . ;s compOp="does-not-start-with"
  . ;i $e(value,$l(value))="%" s value=$e(value,1,$l(value)-1)
+ i no=1 s value=$$replaceAll(value,$c(6),"%")
  i no=1,compOp="starts-with" d  QUIT
  . i value=$c(31) s value=""
  . i $l(value)=1 d
@@ -1800,7 +1836,9 @@ executeQuery(keyId,domainId,no,name,compOp,value,relation,itemList)
  . . . ;s func="startsWith"
  . . . ;i $e(value(i),$l(value(i)))="%" s value(i)=$e(value(i),1,$l(value(i))-1)
  . . i compOp(i)="does-not-start-with" s func="notStartsWith"
+ . s value(i)=$$replaceAll(value(i),$c(6),"%")
  . s expr=expr_"$$"_func_"(xvalue,"""_value(i)_""")"
+ . ;d trace("expr="_expr)
  s xvalue=""
  s attribId=$$getAttributeId(keyId,domainId,name(1))
  s pos=0
@@ -2031,6 +2069,7 @@ parseSelect(selectExpression,domainName,queryExpression,attributes,orderBy,limit
  s domainName=$$stripSpaces(domainName)
  s domainName=$p(domainName," ",1)
  i domainName="" QUIT $$invalid(4)
+ i $e(domainName,1)="`",$e(domainName,$l(domainName))="`" s domainName=$e(domainName,2,$l(domainName)-1)
  s selectExpression=$p(selectExpression,domainName,2,5000)
  s selectExpression=$$convertSubstringToLowerCase(selectExpression," where ")
  s selectExpression=$$stripSpaces(selectExpression)
@@ -2103,7 +2142,11 @@ inProc(queryExpression,expr,thisWord)
 executeSelect(queryExpression,itemList,keyId,itemStack)
  n c,error,expr,inAttr,lastWord,thisWord
  i $g(^zewd("trace"))=1 d trace($h_": in executeSelect.  queryExpression="_queryExpression)
- i queryExpression["''" s queryExpression=$$replaceAll(queryExpression,"''",$c(2))
+ i queryExpression["''" d
+ . s queryExpression=$$replaceAll(queryExpression," '''"," '"_$c(2))
+ . s queryExpression=$$replaceAll(queryExpression,"='''","='"_$c(2))
+ . s queryExpression=$$replaceAll(queryExpression,"'''",$c(2)_"'")
+ . s queryExpression=$$replaceAll(queryExpression,"''",$c(2))
  k itemList
  s error=""
  s inAttr=0,expr="",lastWord="",thisWord=""
@@ -2327,7 +2370,7 @@ externalSelect(keyId,selectExpression) ;
  . . . s vno=""
  . . . f  s vno=$o(attribs(no,"value",vno)) q:vno=""  d
  . . . . s val=attribs(no,"value",vno)
- . . . . s val=$$replaceAll(val,"""","\""")
+ . . . . ;s val=$$replaceAll(val,"""","\""")
  . . . . s val=$$replaceAll(val,"\","\\")
  . . . . s attribArray(no,"v",vno)=val
  . . m itemsAndAttrs(pos,"a")=attribArray
@@ -2337,6 +2380,7 @@ externalSelect(keyId,selectExpression) ;
  i count=1 d
  . n array
  . m array=itemsAndAttrs(1)
+ . ;m ^rob=array
  . s json=$$arrayToJSON^zmwire("array")
  . s json="["_json_"]"
  e  d

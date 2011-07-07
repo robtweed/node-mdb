@@ -55,10 +55,10 @@ zmwire ; M/Wire Protocol for M Systems (eg GT.M, Cache)
  ;    Stop the Daemon process using ^RESJOB and restart it.
  ;
 mwireVersion
- ;;Build 21
+ ;;Build 22
  ;
 mwireDate
- ;;19 June 2011
+ ;;06 July 2011
  ;
 version
  ;
@@ -127,6 +127,7 @@ loop
  i $e(input,1,5)="AUTH " d auth($e(input,6,$l(input))) g loop
  i 'authNeeded!(role="admin"),$e(input,1,12)="SETPASSWORD " d setpassword($e(input,13,$l(input))) g loop
  ;
+ s input=$$utfConvert(input)
  i $e(input,1,4)="SET " d set($e(input,5,$l(input))) g loop
  i $e(input,1,10)="GETGLOBAL " d getGlobal($e(input,11,$l(input))) g loop
  i $e(input,1,14)="GETJSONSTRING " d getJSON($e(input,15,$l(input))) g loop
@@ -215,6 +216,7 @@ multiBulkRequest()
  s param(1)=$zconvert(param(1),"U")
  ;QUIT "PING"
  i param(1)="PING" QUIT param(1)
+ ;s no=$increment(^rob) m ^rob(no)=param
  i param(1)="SET" QUIT param(1)_" "_param(2)_" "_$l(param(3))_crlf_param(3)
  i param(1)="SETJSONSTRING" QUIT param(1)_" "_param(2)_crlf_param(3)_crlf_param(4)
  i param(1)="COPYGLOBAL"!(param(1)="GETSUBSCRIPTS") d  QUIT input
@@ -224,6 +226,7 @@ multiBulkRequest()
  . . i space="" s space=" " q
  . . i space=" " s space=$c(1)
  i param(1)="EXECUTE" d  QUIT input
+ . ;d trace("Execute: param(3)="_param(3))
  . s param(3)=$$replaceAll(param(3),"\""","""""")
  . i $e(param(3),1)="[" s input=param(1)_" "_param(2)_"("_$e(param(3),2,$l(param(3))-1)_")" q
  . s input=param(1)_" "_param(2)
@@ -402,7 +405,7 @@ getGloRef(input)
  ;
 set(input)
  ;
- n data,gloName,gloRef,inputr,json,len,nb,nsp,ok,subs,x
+ n c123,data,gloName,gloRef,i,inputr,json,len,nb,nsp,ok,quot,subs,x
  ;
  ; SET myglobal["1","xx yy",3] 5
  ; hello
@@ -411,6 +414,9 @@ set(input)
  ; hello
  ; +OK
  ;
+ ;n n
+ ;s n=$increment(^rob("set"))
+ ;s ^rob("set",n)=input
  i input[crlf d
  . s data=$p(input,crlf,2,$l(input))
  . s input=$p(input,crlf,1)
@@ -423,9 +429,23 @@ set(input)
  s gloName=$p(gloRef,"[",1)
  s nb=$l(gloRef,"[")+2
  s subs=$p(gloRef,"[",2,nb)
+ ; Process Javascript escaping
+ i subs'="" s subs=subs_")"
+ s quot=""""
+ i subs'="" f i=1:1:$l(subs)-2 d
+ . s c123=$e(subs,i,i+2)
+ . i $e(c123,1)'="\" q
+ . i $e(c123,2)="\" q
+ . i $e(c123,2)=quot d  q
+ . . i $e(c123,3)="," q
+ . . i $e(c123,3)=")" q
+ . . s subs=$e(subs,1,i-1)_quot_quot_$e(subs,i+2,$l(subs))
+ i subs["\\" d
+ . s subs=$$replaceAll(subs,"\\",$c(5))
+ . s subs=$$replaceAll(subs,$c(5),"\")
  s gloRef=gloName
  i gloRef["^zmwire" s output="-No access allowed to this global"_crlf w output QUIT
- i subs'="" s gloRef=gloRef_"("_subs_")"
+ i subs'="" s gloRef=gloRef_"("_subs
  i '$d(data)  d
  . s data=$$readChars(len)
  . r ok 
@@ -433,6 +453,7 @@ set(input)
  i data["""" s data=$$replaceAll(data,"""","""""")
  i data="zmwire_null_value" s data=""
  s x="s "_gloRef_"="""_data_""""
+ i $g(^zewd("trace"))=1 d trace("SET x = "_x)
  s $zt=$$zt()
  x x
  s $zt=""
@@ -615,25 +636,6 @@ kill(input)
  ; KILL myglobal["1","xx yy",3]
  ; +OK
  ;
- ;s nsp=$l(input," ")
- ;f i=1:1:nsp d
- ;. s glo=$p(input," ",i)
- ;. q:glo=""
- ;. s p1=$p(glo,"[",1)
- ;. s p2=$p(glo,"[",2,2000)
- ;. s p2=$e(p2,1,$l(p2)-1)
- ;. s glo=p1_"("_p2_")"
- ;. i glo["()" d
- ;. . s len=$l(glo)
- ;. . i $e(glo,len-1,len)="()" s glo=$e(glo,1,len-2)
- ;. i glo'["zmwire" s glo(glo)=""
- ;s glo=""
- ;f  s glo=$o(glo(glo)) q:glo=""  d
- ;. s x="k ^"_glo
- . s $zt=$$zt()
- ;. x x
- ;. s $zt=""
- ;
  s glo=input
  s p1=$p(glo,"[",1)
  s p2=$p(glo,"[",2,2000)
@@ -642,6 +644,22 @@ kill(input)
  i glo["()" d
  . s len=$l(glo)
  . i $e(glo,len-1,len)="()" s glo=$e(glo,1,len-2)
+ e  d
+ . ; Process Javascript escaping
+ . n c123,quot
+ . s quot=""""
+ . f i=1:1:$l(glo)-2 d
+ . . s c123=$e(glo,i,i+2)
+ . . i $e(c123,1)'="\" q
+ . . i $e(c123,2)="\" q
+ . . i $e(c123,2)=quot d  q
+ . . . i $e(c123,3)="," q
+ . . . i $e(c123,3)=")" q
+ . . . s glo=$e(glo,1,i-1)_quot_quot_$e(glo,i+2,$l(glo))
+ . i glo["\\" d
+ . . s glo=$$replaceAll(glo,"\\",$c(5))
+ . . s glo=$$replaceAll(glo,$c(5),"\")
+ ;
  i glo'["zmwire" s glo(glo)=""
 
  s x="k ^"_glo
@@ -1008,7 +1026,7 @@ query(input)
  s nb=$l(data,"(")+2
  ;d trace("nb="_nb)
  s p2=$p(data,"(",2,nb)
- d trace("1 p2="_p2)
+ ;d trace("1 p2="_p2)
  s p2=$e(p2,1,$l(p2)-1)
  ;d trace("2 p2="_p2)
  s data=p1_"["_p2_"]"
@@ -1629,9 +1647,22 @@ relink ;
  QUIT
  ;
 arrayToJSON(name)
- n subscripts
+ n a,buff,c,json,subscripts
  i '$d(@name) QUIT "[]"
- QUIT $$walkArray("",name)
+ s json=$$walkArray("",name)
+ ; Encode UTF-8 characters
+ s buff=""
+ f i=1:1:$l(json) d
+ . s c=$e(json,i)
+ . s a=$a(c)
+ . i a>160 d
+ . . i a<192 d
+ . . . s buff=buff_$c(194)_c
+ . . e  d
+ . . . s buff=buff_$c(195)_$c(a-64)
+ . e  d
+ . . s buff=buff_c
+ QUIT buff
  ;
 walkArray(json,name,subscripts)
  ;
@@ -1639,7 +1670,7 @@ walkArray(json,name,subscripts)
  n ref,sub,subNo,subscripts1,type,valquot,value,xref,zobj
  ;
  s cr=$c(13,10),comma=","
- s (dblquot,valquot)=""""
+ s (quot,dblquot,valquot)=""""
  s dd=$d(@name)
  i dd=1!(dd=11) d  i dd=1 QUIT json
  . s value=@name
@@ -1648,9 +1679,10 @@ walkArray(json,name,subscripts)
  s ref=name_"("
  s no=$o(subscripts(""),-1)
  i no>0 f i=1:1:no d
- . s quot=""""
+ . i subscripts(i)[quot s subscripts(i)=$$replaceAll(subscripts(i),quot,quot_quot)
  . i subscripts(i)?."-"1N.N s quot=""
  . s ref=ref_quot_subscripts(i)_quot_","
+ . s quot=dblquot
  s ref=ref_"sub)"
  s sub="",numsub=0,subNo=0,count=0
  s allNumeric=1
@@ -1671,9 +1703,10 @@ walkArray(json,name,subscripts)
  . s dd=$d(@ref)
  . i dd=1 d
  . . s value=@ref
- . . i value["/" s value=$$replaceAll(value,"\","\\")
+ . . ;i value["\" s value=$$replaceAll(value,"\","\\")
  . . s value=$$removeControlChars(value)
  . . i 'allNumeric d
+ . . . ;i sub["\",sub'["\\",sub'["\"""  s sub=$$replaceAll(sub,"\","\\")
  . . . i sub["\" s sub=$$replaceAll(sub,"\","\\")
  . . . s sub=$$removeControlChars(sub)
  . . . s json=json_""""_sub_""":"
@@ -1681,21 +1714,30 @@ walkArray(json,name,subscripts)
  . . i $$numeric(value) s type="numeric"
  . . i value="true"!(value="false") s type="boolean"
  . . i $e(value,1)="{",$e(value,$l(value))="}" s type="variable"
- . . i type="literal" s value=valquot_value_valquot
+ . . i type="literal" d
+ . . . ;i value[quot s value=$$replaceAll(value,quot,"\"_quot)
+ . . . ;i value["\",value'["\\",value'["\"""  s value=$$replaceAll(value,"\","\\")
+ . . . i value["\" s value=$$replaceAll(value,"\","\\")
+ . . . i value[quot s value=$$replaceAll(value,quot,"\""")
+ . . . s value=valquot_value_valquot
  . . d
  . . . s json=json_value_","
  . k subscripts1
  . m subscripts1=subscripts
  . i dd>9 d
+ . . n subx
  . . ;i sub?1N.N d
  . . ;. i subNo=1 d
  . . ;. . s numsub=1
  . . ;. . s json=$e(json,1,$l(json)-1)_"["
  . . ;e  d
  . . ;. s json=json_""""_sub_""":"
- . . i sub["\" s sub=$$replaceAll(sub,"\","\\")
- . . s sub=$$removeControlChars(sub)
- . . s json=json_""""_sub_""":"
+ . . ;i sub["\",sub'["\\",sub'["\""" s sub=$$replaceAll(sub,"\","\\")
+ . . s subx=sub
+ . . i subx["\" s subx=$$replaceAll(sub,"\","\\")
+ . . i subx[quot s subx=$$replaceAll(subx,quot,"\""")
+ . . s subx=$$removeControlChars(subx)
+ . . s json=json_""""_subx_""":"
  . . s json=$$walkArray(json,name,.subscripts1)
  . . d
  . . . s json=json_","
@@ -1889,5 +1931,19 @@ removeControlChars(string)
  . s newString=newString_c
  QUIT newString
  ;
-
+utfConvert(input)
+ ; Unescape UTF-8 characters
+ i input[$c(195) d
+ . n buf,c1,i,no,p
+ . s buf=$p(input,$c(195),1)
+ . s no=$l(input,$c(195))
+ . f i=2:1:no d
+ . . s p=$p(input,$c(195),i)
+ . . s c1=$e(p,1)
+ . . s c1=$c($a(c1)+64)
+ . . s buf=buf_c1_$e(p,2,$l(p))
+ . s input=buf
+ s input=$tr(input,$c(194),"")
+ QUIT input
+ ;
 
