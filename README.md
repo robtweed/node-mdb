@@ -1,6 +1,6 @@
 # node-mdb
 
-** Note: This repository has been deprecated.  It has been left here for reference for anyone interested in viewing its logic etc.  Some links in the documentation may no longer work.  Please contact the author if you require further information.**
+**Note: This repository has been deprecated.  It has been left here for reference for anyone interested in viewing its logic etc.  Some links in the documentation may no longer work.  Please contact the author if you require further information.**
  
 *node-mdb* is a Node.js-based Open Source clone of Amazon SimpleDB
 
