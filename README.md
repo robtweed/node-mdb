@@ -1,4 +1,6 @@
 # node-mdb
+
+** Note: This repository has been deprecated.  It has been left here for reference for anyone interested in viewing its logic etc.  Some links in the documentation may no longer work.  Please contact the author if you require further information.**
  
 *node-mdb* is a Node.js-based Open Source clone of Amazon SimpleDB
 
@@ -6,13 +8,12 @@ It is a re-implementation of M/DB, but re-written in Node.js Javascript.  Like M
 GT.M database as the data repository.  *node-mdb* is a fully-fledged database, not simply a mock service.
 
 Rob Tweed <rtweed@mgateway.com>  
-23 June 2011, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+23 June 2011
+Copyright 2023: MGateway Ltd [https://www.mgateway.com](https://www.mgateway.com)  
 
 Twitter @rtweed
 
 Google Group for discussions, support, advice etc: [http://groups.google.co.uk/group/mdb-community-forum](http://groups.google.co.uk/group/mdb-community-forum)
-
-See [http://www.mgateway.com/mdb.html](http://www.mgateway.com/mdb.html) for background on M/DB.
 
 ## Important Note
 
@@ -47,11 +48,11 @@ Note: the current version uses HTTP, but could be adapted for use with HTTPS
 	  
 ## License
 
-Copyright (c) 2011 M/Gateway Developments Ltd,
-Reigate, Surrey UK.
+Copyright (c) 2023 MGateway Ltd,
+Redhill, Surrey UK.
 All rights reserved.
 
-http://www.mgateway.com
+https://www.mgateway.com
 Email: rtweed@mgateway.com
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -77,7 +78,7 @@ You should have received a copy of the GNU Affero General Public License along w
 To build your own node-mdb system, you'll first need to install and configure the Free Open Source NoSQL GT.M database
  [http://fisglobal.com/Products/TechnologyPlatforms/GTM/index.htm](http://fisglobal.com/Products/TechnologyPlatforms/GTM/index.htm). 
 
-The reasons why I've used GT.M for emulation of SimpleDB's functionality are best summed up in this paper: [http://www.mgateway.com/docs/universalNoSQL.pdf](http://www.mgateway.com/docs/universalNoSQL.pdf)
+The reasons why I've used GT.M for emulation of SimpleDB's functionality are best summed up in this paper: [http://www.mgateway.com/documents/universalNoSQL.pdf](https://www.mgateway.com/documents/universalNoSQL.pdf)
 
 You can download GT.M from [http://sourceforge.net/projects/fis-gtm/](http://sourceforge.net/projects/fis-gtm/).  Installation instructions are provided in the download kit. The 
  simplest way to install GT.M is to use the new installer: [http://sourceforge.net/projects/fis-gtm/files/GT.M%20Installer/v0.11/gtminstall] 
