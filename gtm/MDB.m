@@ -2,11 +2,11 @@ MDB ; M/DB: Mumps Emulation of Amazon SimpleDB
  ;
  ; ----------------------------------------------------------------------------
  ; | M/DB                                                                     |
- ; | Copyright (c) 2004-11 M/Gateway Developments Ltd,                        |
- ; | Reigate, Surrey UK.                                                      |
+ ; | Copyright (c) 2023 MGateway Ltd,                                         |
+ ; | Redhill, Surrey UK.                                                      |
  ; | All rights reserved.                                                     |
  ; |                                                                          |
- ; | http://www.mgateway.com                                                  |
+ ; | https://www.mgateway.com                                                 |
  ; | Email: rtweed@mgateway.com                                               |
  ; |                                                                          |
  ; | This program is free software: you can redistribute it and/or modify     |
